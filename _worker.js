@@ -3,14 +3,7 @@ const html = `
 <!DOCTYPE html>
 <html>
 <head>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-B4GXYY3RXV"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
 
-    gtag('config', 'G-B4GXYY3RXV');
-  </script>
   <meta charset="utf-8">
   <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><rect x="10" y="8" width="20" height="28" rx="4" fill="%23667eea"/><rect x="14" y="12" width="12" height="20" rx="2" fill="%23fff"/><path d="M34 32a8 8 0 1 0-2.5-15.6A10 10 0 1 0 8 34h26z" fill="%23a8edea" stroke="%23667eea" stroke-width="2"/><rect x="18" y="18" width="4" height="2" rx="1" fill="%23667eea"/><rect x="18" y="22" width="8" height="2" rx="1" fill="%23667eea"/><rect x="18" y="26" width="8" height="2" rx="1" fill="%23667eea"/></svg>'>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,45 +17,46 @@ const html = `
     
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #f0f8ff;
       min-height: 100vh;
       padding: 20px;
       color: #333;
     }
     
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: 0 auto;
       background: white;
-      border-radius: 20px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       overflow: hidden;
     }
     
     .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #4a90e2;
       color: white;
-      padding: 30px;
+      padding: 15px;
       text-align: center;
     }
     
     .header h1 {
-      font-size: 2.5em;
-      margin-bottom: 10px;
+      font-size: 1.8em;
+      margin-bottom: 5px;
       font-weight: 300;
     }
     
     .header p {
       opacity: 0.9;
-      font-size: 1.1em;
+      font-size: 0.9em;
+      margin: 0;
     }
     
     .content {
-      padding: 40px;
+      padding: 30px;
     }
     
     .form-group {
-      margin-bottom: 25px;
+      margin-bottom: 20px;
     }
     
     .form-group label {
@@ -70,13 +64,14 @@ const html = `
       margin-bottom: 8px;
       font-weight: 600;
       color: #555;
+      font-size: 14px;
     }
     
     textarea {
       width: 100%;
-      height: 200px;
+      min-height: 150px;
       border: 2px solid #e1e5e9;
-      border-radius: 12px;
+      border-radius: 8px;
       padding: 15px;
       font-size: 14px;
       font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -91,28 +86,30 @@ const html = `
     
     textarea:focus {
       outline: none;
-      border-color: #667eea;
+      border-color: #4a90e2;
       background: white;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
     }
     
     .btn {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #4a90e2;
       color: white;
       border: none;
-      padding: 12px 30px;
-      border-radius: 25px;
-      font-size: 16px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
       margin-right: 10px;
+      margin-bottom: 10px;
     }
     
     .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+      background: #357abd;
     }
     
     .btn:active {
@@ -120,49 +117,72 @@ const html = `
     }
     
     .btn-danger {
-      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
-      box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+      background: #e74c3c;
+      box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
     }
     
     .btn-danger:hover {
-      box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+      box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+      background: #c0392b;
     }
     
     .btn-success {
-      background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
-      box-shadow: 0 4px 15px rgba(81, 207, 102, 0.3);
+      background: #27ae60;
+      box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
     }
     
     .btn-success:hover {
-      box-shadow: 0 6px 20px rgba(81, 207, 102, 0.4);
+      box-shadow: 0 4px 12px rgba(39, 174, 96, 0.4);
+      background: #219a52;
     }
     
     .btn-secondary {
-      background: linear-gradient(135deg, #868e96 0%, #6c757d 100%);
-      box-shadow: 0 4px 15px rgba(134, 142, 150, 0.3);
+      background: #95a5a6;
+      box-shadow: 0 2px 8px rgba(149, 165, 166, 0.3);
     }
     
     .btn-secondary:hover {
-      box-shadow: 0 6px 20px rgba(134, 142, 150, 0.4);
+      box-shadow: 0 4px 12px rgba(149, 165, 166, 0.4);
+      background: #7f8c8d;
     }
     
     .paste-link {
-      margin: 25px 0;
-      padding: 20px;
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 20px 30px;
+      background: rgba(255, 255, 255, 0.9);
       border-radius: 12px;
-      color: white;
+      color: #333;
       text-align: center;
       display: none;
+      z-index: 10000;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+      max-width: 90%;
+      min-width: 300px;
     }
     
     .paste-link.show {
       display: block;
-      animation: slideIn 0.5s ease;
+      animation: fadeIn 0.5s ease;
+    }
+    
+    .paste-link .error {
+      background: rgba(255, 238, 238, 0.9);
+      color: #c33;
+      border-left: 4px solid #c33;
+    }
+    
+    .paste-link .success {
+      background: rgba(238, 255, 238, 0.9);
+      color: #3c3;
+      border-left: 4px solid #3c3;
     }
     
     .paste-link a {
-      color: white;
+      color: #667eea;
       text-decoration: none;
       font-weight: 600;
       font-size: 1.1em;
@@ -171,6 +191,7 @@ const html = `
     
     .paste-link a:hover {
       text-decoration: underline;
+      color: #764ba2;
     }
     
     .paste-content {
@@ -178,7 +199,7 @@ const html = `
       padding: 20px;
       border-radius: 12px;
       margin: 20px 0;
-      border: 2px solid #667eea;
+      border: 2px solid #4a90e2;
       display: none;
       max-height: 80vh;
       overflow-y: auto;
@@ -239,7 +260,7 @@ const html = `
       padding: 15px;
       margin-bottom: 10px;
       border-radius: 8px;
-      border-left: 3px solid #667eea;
+      border-left: 3px solid #4a90e2;
       transition: all 0.3s ease;
       display: flex;
       justify-content: space-between;
@@ -355,17 +376,6 @@ const html = `
       word-break: break-all;
     }
     
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
     @keyframes fadeIn {
       from {
         opacity: 0;
@@ -381,36 +391,52 @@ const html = `
       }
       
       .container {
-        border-radius: 15px;
+        border-radius: 12px;
       }
       
       .header {
-        padding: 20px;
+        padding: 15px;
       }
       
       .header h1 {
-        font-size: 2em;
+        font-size: 1.6em;
       }
       
       .content {
         padding: 20px;
       }
       
-      .stats {
-        flex-direction: column;
-        gap: 10px;
+      .form-group {
+        margin-bottom: 20px;
+      }
+      
+      textarea {
+        min-height: 120px;
+        font-size: 13px;
+      }
+      
+      .btn {
+        padding: 10px 20px;
+        font-size: 14px;
       }
       
       .paste-item {
         flex-direction: column;
         align-items: flex-start;
-        gap: 10px;
+        gap: 8px;
+        padding: 12px;
       }
       
       .paste-actions {
         margin-left: 0;
         width: 100%;
         justify-content: flex-end;
+        gap: 6px;
+      }
+      
+      .action-btn {
+        padding: 4px 6px;
+        font-size: 12px;
       }
       
       #token-box {
@@ -441,20 +467,74 @@ const html = `
         font-size: 10px !important;
         padding: 6px !important;
       }
+      
+      .login-form {
+        margin: 20px auto;
+        padding: 24px 16px 16px 16px;
+        max-width: 90%;
+      }
+      
+      .login-form h2 {
+        font-size: 1.2em;
+        margin-bottom: 12px;
+      }
+      
+      .login-form input {
+        font-size: 14px !important;
+        padding: 10px !important;
+      }
+      
+      .login-form .btn {
+        font-size: 14px !important;
+        padding: 10px !important;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .header {
+        padding: 12px;
+      }
+      
+      .header h1 {
+        font-size: 1.4em;
+      }
+      
+      .header p {
+        font-size: 0.8em;
+      }
+      
+      .content {
+        padding: 15px;
+      }
+      
+      textarea {
+        min-height: 120px;
+        padding: 12px;
+      }
+      
+      .btn {
+        padding: 8px 16px;
+        font-size: 13px;
+        margin-right: 8px;
+      }
+      
+      .paste-item {
+        padding: 10px;
+      }
     }
     .login-form {
       max-width: 350px;
       margin: 40px auto;
       background: #fff;
       border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(102,126,234,0.08);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       padding: 32px 24px 24px 24px;
       text-align: center;
       display: none;
     }
     .login-form h2 {
       margin-bottom: 18px;
-      color: #667eea;
+      color: #4a90e2;
       font-weight: 600;
     }
     .login-form input {
@@ -468,7 +548,7 @@ const html = `
       transition: border 0.2s;
     }
     .login-form input:focus {
-      border-color: #667eea;
+      border-color: #4a90e2;
     }
     .login-form .btn {
       width: 100%;
@@ -499,7 +579,7 @@ const html = `
   <div class="container">
     <div class="header">
       <h1>
-        📋 ZQ-File
+         ZQ-File
       </h1>
       <p>Cloudflare Workers 驱动的文本托管服务</p>
     </div>
@@ -507,33 +587,38 @@ const html = `
     <div class="content">
   <form id="paste-form">
         <div class="form-group">
-          <label for="text">📝 在这里输入你的文本...</label>
-          <textarea id="text" placeholder="支持任何文本内容，包括代码、配置、链接等..."></textarea>
+          <label for="text">在这里输入你的文本...</label>
+          <textarea id="text" placeholder="请输入文本内容..."></textarea>
         </div>
         <div class="form-group">
-          <label for="custom-title">📝 自定义显示名称（可选）</label>
+          <label for="custom-title">自定义显示名称（可选）</label>
           <input type="text" id="custom-title" placeholder="例如: 我的重要笔记，留空则显示链接" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px; margin-bottom: 15px;">
           <div class="help-text">用于在列表中显示，支持任意字符，长度1-50字符</div>
         </div>
         <div class="form-group">
-          <label for="custom-name">🔗 自定义链接后缀（可选）</label>
+          <label for="custom-name">自定义链接后缀（可选）</label>
           <input type="text" id="custom-name" placeholder="例如: my-note-123，留空则自动生成" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px;">
           <div class="help-text">支持字母、数字、连字符(-)、下划线(_)、点号(.)；其他字符会自动删除</div>
         </div>
-        <button type="submit" class="btn">🚀 提交</button>
+        <div class="form-group">
+          <label for="expire-time">过期时间（可选）</label>
+          <input type="datetime-local" id="expire-time" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px;">
+          <div class="help-text">留空则永不过期，设置后文本将在指定时间后自动删除</div>
+        </div>
+        <button type="submit" class="btn">提交</button>
   </form>
       
   <div class="paste-link" id="paste-link"></div>
   <div class="paste-content" id="paste-content">
-    <h4>📄 文本内容</h4>
+    <h4>文本内容</h4>
     <div id="paste-text"></div>
-    <button class="btn btn-success" onclick="copyPasteContent()">💾 复制</button>
-    <button class="btn btn-secondary" onclick="closePasteContent()">❌ 取消</button>
+    <button class="btn btn-success" onclick="copyPasteContent()">复制</button>
+    <button class="btn btn-secondary" onclick="closePasteContent()">取消</button>
   </div>
       
       
       <div class="all-pastes" id="all-pastes">
-        <div class="loading">🔄 加载中...</div>
+        <div class="loading">加载中...</div>
       </div>
     </div>
   </div>
@@ -592,16 +677,18 @@ const html = `
       
       try {
         // 显示加载状态
-        pasteLink.innerHTML = '🔄 正在提交...';
+        pasteLink.innerHTML = '正在提交...';
         pasteLink.classList.add('show');
         
+      const expireTime = document.getElementById('expire-time').value;
       const res = await authFetch('/api/paste', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
             text: text,
             title: customTitle || null,
-            name: customName || null
+            name: customName || null,
+            expireAt: expireTime ? new Date(expireTime).getTime() : null
           })
       });
         
@@ -609,7 +696,7 @@ const html = `
         
         if(data.code === 1 && data.id){
           pasteLink.innerHTML = 
-            '<div>✅ 提交成功！</div>' +
+            '<div>提交成功！</div>' +
             '<div style="margin-top: 10px;">' +
             '<strong>你的链接:</strong><br>' +
             '<a href="/' + data.id + '" target="_blank">' + location.origin + '/' + data.id + '</a>' +
@@ -621,6 +708,12 @@ const html = `
           document.getElementById('text').value = '';
           document.getElementById('custom-title').value = '';
           document.getElementById('custom-name').value = '';
+          document.getElementById('expire-time').value = '';
+          
+          // 3秒后自动消失
+          setTimeout(() => {
+            pasteLink.classList.remove('show');
+          }, 3000);
           
           // 刷新列表
           loadAllPastes();
@@ -633,16 +726,24 @@ const html = `
     };
     
     function showError(message) {
-      pasteLink.innerHTML = '<div class="error">❌ ' + message + '</div>';
+      pasteLink.innerHTML = '<div class="error">' + message + '</div>';
       pasteLink.classList.add('show');
+      // 3秒后自动消失
+      setTimeout(() => {
+        pasteLink.classList.remove('show');
+      }, 3000);
     }
     
     function showSuccess(message) {
-      pasteLink.innerHTML = '<div class="success">✅ ' + message + '</div>';
+      pasteLink.innerHTML = '<div class="success">' + message + '</div>';
       pasteLink.classList.add('show');
+      // 3秒后自动消失
+      setTimeout(() => {
+        pasteLink.classList.remove('show');
+      }, 3000);
     }
     
-    function showCopySuccess(id, message) {
+    function showCopyMessage(id, message, isSuccess) {
       // 找到对应的复制按钮
       const copyBtn = document.querySelector('[data-id="' + id + '"].copy-btn');
       if (copyBtn) {
@@ -655,41 +756,8 @@ const html = `
         // 创建新的提示
         const tip = document.createElement('div');
         tip.className = 'copy-tip';
-        tip.style = 'position:fixed;background:#51cf66;color:white;padding:6px 10px;border-radius:6px;font-size:11px;z-index:10000;box-shadow:0 4px 12px rgba(0,0,0,0.3);pointer-events:none;white-space:nowrap;';
-        tip.innerHTML = '✅ ' + message;
-        
-        // 添加到body
-        document.body.appendChild(tip);
-        
-        // 计算位置（按钮上方）
-        const rect = copyBtn.getBoundingClientRect();
-        tip.style.left = (rect.left + rect.width / 2 - tip.offsetWidth / 2) + 'px';
-        tip.style.top = (rect.top - tip.offsetHeight - 8) + 'px';
-        
-        // 2秒后自动移除
-        setTimeout(() => {
-          if (tip.parentNode) {
-            tip.remove();
-          }
-        }, 2000);
-      }
-    }
-    
-    function showCopyError(id, message) {
-      // 找到对应的复制按钮
-      const copyBtn = document.querySelector('[data-id="' + id + '"].copy-btn');
-      if (copyBtn) {
-        // 移除现有的提示
-        const existingTip = document.querySelector('.copy-tip');
-        if (existingTip) {
-          existingTip.remove();
-        }
-        
-        // 创建新的提示
-        const tip = document.createElement('div');
-        tip.className = 'copy-tip';
-        tip.style = 'position:fixed;background:#ff6b6b;color:white;padding:6px 10px;border-radius:6px;font-size:11px;z-index:10000;box-shadow:0 4px 12px rgba(0,0,0,0.3);pointer-events:none;white-space:nowrap;';
-        tip.innerHTML = '❌ ' + message;
+        tip.style = 'position:fixed;background:' + (isSuccess ? '#51cf66' : '#ff6b6b') + ';color:white;padding:6px 10px;border-radius:6px;font-size:11px;z-index:10000;box-shadow:0 4px 12px rgba(0,0,0,0.3);pointer-events:none;white-space:nowrap;';
+        tip.innerHTML = message;
         
         // 添加到body
         document.body.appendChild(tip);
@@ -713,11 +781,13 @@ const html = `
         const res = await authFetch('/api/paste?id=' + id);
         const nameRes = await authFetch('/api/name?id=' + id);
         const titleRes = await authFetch('/api/title?id=' + id);
+        const expireRes = await authFetch('/api/expire?id=' + id);
         
         if (res.ok) {
           const text = await res.text();
           const name = nameRes.ok ? await nameRes.text() : '';
           const title = titleRes.ok ? await titleRes.text() : '';
+          const expireAt = expireRes.ok ? await expireRes.text() : '';
           
           // 隐藏其他可能显示的内容
           pasteLink.classList.remove('show');
@@ -736,20 +806,26 @@ const html = `
             const editForm = document.createElement('div');
             editForm.className = 'edit-form show';
             editForm.innerHTML = 
-              '<h4>✏️ 编辑内容</h4>' +
+              '<h4>编辑内容</h4>' +
               '<div class="form-group">' +
-                '<label for="edit-title">📝 自定义显示名称</label>' +
+                '<label for="edit-title">自定义显示名称</label>' +
                 '<input type="text" id="edit-title" placeholder="例如: 我的重要笔记" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px; margin-bottom: 15px;">' +
                 '<div class="help-text">用于在列表中显示，支持任意字符，长度1-50字符</div>' +
               '</div>' +
               '<div class="form-group">' +
-                '<label for="edit-name">🔗 自定义链接后缀</label>' +
+                '<label for="edit-name">自定义链接后缀</label>' +
                 '<input type="text" id="edit-name" placeholder="例如: my-note-123" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px; margin-bottom: 15px;">' +
               '<div class="help-text">支持字母、数字、连字符(-)、下划线(_)、点号(.)；其他字符会自动删除</div>' +
               '</div>' +
+              '<div class="form-group">' +
+                '<label for="edit-expire-time">过期时间</label>' +
+                '<input type="datetime-local" id="edit-expire-time" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px; margin-bottom: 15px;">' +
+                '<div class="help-text">留空则永不过期，设置后文本将在指定时间后自动删除</div>' +
+              '</div>' +
               '<textarea id="edit-text" placeholder="编辑你的内容..."></textarea>' +
-              '<button class="btn btn-success" onclick="saveEdit()">💾 保存</button>' +
-              '<button class="btn btn-secondary" onclick="cancelEdit()">❌ 取消</button>';
+              '<button class="btn btn-success" onclick="saveEdit()">保存</button>' +
+              '<button class="btn btn-secondary" onclick="cancelEdit()">取消</button>';
+
             
             // 在对应的paste-item后面插入编辑框
             pasteItem.parentNode.insertBefore(editForm, pasteItem.nextSibling);
@@ -758,6 +834,11 @@ const html = `
             document.getElementById('edit-text').value = text;
             document.getElementById('edit-title').value = title;
             document.getElementById('edit-name').value = name;
+            if (expireAt) {
+              const date = new Date(Number(expireAt));
+              const formattedDate = date.toISOString().slice(0, 16);
+              document.getElementById('edit-expire-time').value = formattedDate;
+            }
             currentEditId = id;
             
             // 滚动到编辑框
@@ -775,6 +856,7 @@ const html = `
       const editTextElement = document.getElementById('edit-text');
       const editTitleElement = document.getElementById('edit-title');
       const editNameElement = document.getElementById('edit-name');
+      const editExpireTimeElement = document.getElementById('edit-expire-time');
       
       if (!currentEditId || !editTextElement || !editTextElement.value.trim()) {
         showError('请先选择要编辑的内容并输入新内容');
@@ -783,6 +865,7 @@ const html = `
       
       const customTitle = editTitleElement ? editTitleElement.value.trim() : '';
       let customName = editNameElement ? editNameElement.value.trim() : '';
+      const expireTime = editExpireTimeElement ? editExpireTimeElement.value : '';
       // 自动清理非法字符
       customName = sanitizeCustomName(customName);
       if (editNameElement) editNameElement.value = customName;
@@ -807,7 +890,8 @@ const html = `
             id: currentEditId,
             text: editTextElement.value.trim(),
             title: customTitle || null,
-            name: customName || null
+            name: customName || null,
+            expireAt: expireTime ? new Date(expireTime).getTime() : null
           })
         });
         
@@ -893,7 +977,7 @@ const html = `
       // 使用现代浏览器的Clipboard API
       if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(link).then(function() {
-          showCopySuccess(id, '链接已复制到剪贴板！');
+          showCopyMessage(id, '链接已复制到剪贴板！', true);
         }).catch(function() {
           // 如果Clipboard API失败，使用传统方法
           fallbackCopyTextToClipboard(link, id);
@@ -918,20 +1002,20 @@ const html = `
         const successful = document.execCommand('copy');
         if (successful) {
           if (id) {
-            showCopySuccess(id, '链接已复制到剪贴板！');
+            showCopyMessage(id, '链接已复制到剪贴板！', true);
           } else {
             showSuccess('内容已复制到剪贴板！');
           }
         } else {
           if (id) {
-            showCopyError(id, '复制失败，请手动复制');
+            showCopyMessage(id, '复制失败，请手动复制', false);
           } else {
             showError('复制失败，请手动复制');
           }
         }
       } catch (err) {
         if (id) {
-          showCopyError(id, '复制失败，请手动复制');
+          showCopyMessage(id, '复制失败，请手动复制', false);
         } else {
           showError('复制失败，请手动复制');
         }
@@ -972,11 +1056,11 @@ const html = `
           if(Array.isArray(list) && list.length){
             var html = 
               '<div class="stats">' +
-              '<span>📊 总共 ' + list.length + ' 个文本</span>' +
+              '<span> 总共 ' + list.length + ' 个文本</span>' +
               '</div>' +
-              '<h3>📋 全部文本</h3>';
+              '<h3> 全部文本</h3>';
             
-            // 获取所有名称、标题和时间
+            // 获取所有名称、标题、时间和过期时间
             Promise.all(list.map(function(id) {
               return Promise.all([
                 authFetch('/api/name?id=' + id)
@@ -987,9 +1071,12 @@ const html = `
                   .catch(function() { return null; }),
                 authFetch('/api/time?id=' + id)
                   .then(function(r) { return r.ok ? r.json() : {}; })
-                  .catch(function() { return {}; })
+                  .catch(function() { return {}; }),
+                authFetch('/api/expire?id=' + id)
+                  .then(function(r) { return r.ok ? r.text() : null; })
+                  .catch(function() { return null; })
               ]).then(function(results){
-                return { name: results[0], title: results[1], time: results[2] };
+                return { name: results[0], title: results[1], time: results[2], expireAt: results[3] };
               });
             })).then(function(infoList) {
               for(var i = 0; i < list.length; i++){
@@ -997,9 +1084,12 @@ const html = `
                 var name = infoList[i].name;
                 var title = infoList[i].title;
                 var time = infoList[i].time || {};
+                var expireAt = infoList[i].expireAt;
                 var ts = time.updatedAt || time.createdAt || null;
                 var link = location.origin + '/' + id;
                 var timeText = ts ? new Date(ts).toLocaleString() : '';
+                var expireText = expireAt ? new Date(Number(expireAt)).toLocaleString() : '永不过期';
+                var expireColor = expireAt ? '#ff6b6b' : '#51cf66';
                 var displayName = title ? (i + 1) + '. ' + title + ' (' + link + ')' : 
                                  name ? (i + 1) + '. ' + name + ' (' + link + ')' : 
                                  (i + 1) + '. ' + link;
@@ -1007,11 +1097,12 @@ const html = `
                 html += 
                   '<div class="paste-item">' +
                   '<a href="javascript:void(0)" data-id="' + id + '" class="paste-link-item" style="cursor: pointer;">' + displayName + '</a>' +
-                  (timeText ? '<div style="color:#666;font-size:12px;margin-left:10px;white-space:nowrap;">🕒 ' + timeText + '</div>' : '') +
+                  (timeText ? '<div style="color:#666;font-size:12px;margin-left:10px;white-space:nowrap;">' + timeText + '</div>' : '') +
+                  '<div style="color:' + expireColor + ';font-size:12px;margin-left:10px;white-space:nowrap;">' + (expireAt ? '过期: ' + expireText : expireText) + '</div>' +
                   '<div class="paste-actions">' +
-                  '<button class="action-btn copy-btn" data-id="' + id + '" title="复制链接">📋</button>' +
-                  '<button class="action-btn edit-btn" data-id="' + id + '" title="编辑">✏️</button>' +
-                  '<button class="action-btn delete-btn" data-id="' + id + '" title="删除">🗑️</button>' +
+                  '<button class="action-btn copy-btn" data-id="' + id + '" title="复制链接">复制</button>' +
+                  '<button class="action-btn edit-btn" data-id="' + id + '" title="编辑">编辑</button>' +
+                  '<button class="action-btn delete-btn" data-id="' + id + '" title="删除">删除</button>' +
                   '</div>' +
                   '</div>';
               }
@@ -1048,12 +1139,12 @@ const html = `
               }
             });
           } else {
-            allPastes.innerHTML = '<h3>📋 暂无文本</h3><p style="color: #666; text-align: center;">还没有任何内容，快来创建第一个文本吧！</p>';
+            allPastes.innerHTML = '<h3>暂无文本</h3><p style="color: #666; text-align: center;">还没有任何内容，快来创建第一个文本吧！</p>';
           }
         })
         .catch(function(error) {
           console.error('加载失败:', error);
-          allPastes.innerHTML = '<div class="error">❌ 加载失败: ' + error.message + '</div>';
+          allPastes.innerHTML = '<div class="error"> 加载失败: ' + error.message + '</div>';
         });
     }
     
@@ -1085,9 +1176,6 @@ const html = `
     
     // 页面加载时显示全部文本
     loadAllPastes();
-    
-    // 自动刷新列表（每30秒）
-    setInterval(loadAllPastes, 30000);
 
     // 封装fetch，自动带token
     function authFetch(url, options = {}) {
@@ -1155,26 +1243,26 @@ const html = `
       if (!tokenBox) {
         tokenBox = document.createElement('div');
         tokenBox.id = 'token-box';
-        tokenBox.style = 'margin:20px auto 0 auto;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.1);padding:0;overflow:hidden;transition:all 0.3s ease;max-width:400px;min-width:250px;';
+        tokenBox.style = 'margin:20px auto 0 auto;background:rgba(74, 144, 226, 0.1);backdrop-filter:blur(10px);border:1px solid rgba(74, 144, 226, 0.2);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:0;overflow:hidden;transition:all 0.3s ease;max-width:400px;min-width:250px;';
         
         // 创建头部（始终显示）
         const header = document.createElement('div');
-        header.style = 'padding:12px 16px;background:rgba(255,255,255,0.1);color:white;display:flex;align-items:center;justify-content:space-between;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.1);';
+        header.style = 'padding:12px 16px;background:#4a90e2;color:white;display:flex;align-items:center;justify-content:space-between;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.2);';
         header.innerHTML = 
           '<div style="display:flex;align-items:center;gap:8px;">' +
-            '<span style="font-size:16px;">🔑</span>' +
+
             '<span style="font-size:14px;font-weight:500;">API Token</span>' +
           '</div>' +
           '<div style="display:flex;align-items:center;gap:8px;">' +
-            '<button id="copy-token-btn" style="padding:6px 12px;border-radius:6px;border:none;background:rgba(255,255,255,0.2);color:white;cursor:pointer;font-size:12px;transition:all 0.2s;backdrop-filter:blur(5px);">复制</button>' +
-            '<button id="logout-btn" style="padding:6px 12px;border-radius:6px;border:none;background:rgba(255,107,107,0.6);color:white;cursor:pointer;font-size:12px;transition:all 0.2s;backdrop-filter:blur(5px);">退出</button>' +
+            '<button id="copy-token-btn" style="padding:6px 12px;border-radius:4px;border:none;background:rgba(255,255,255,0.2);color:white;cursor:pointer;font-size:12px;transition:all 0.2s;">复制</button>' +
+            '<button id="logout-btn" style="padding:6px 12px;border-radius:4px;border:none;background:#e74c3c;color:white;cursor:pointer;font-size:12px;transition:all 0.2s;">退出</button>' +
             '<span id="toggle-icon" style="font-size:12px;transition:transform 0.3s ease;">▼</span>' +
           '</div>';
         
         // 创建内容区域（可折叠）
         const content = document.createElement('div');
         content.id = 'token-content';
-        content.style = 'padding:16px;background:rgba(255,255,255,0.9);border-top:1px solid rgba(255,255,255,0.2);display:none;backdrop-filter:blur(5px);';
+        content.style = 'padding:16px;background:white;border-top:1px solid rgba(74, 144, 226, 0.2);display:none;';
         content.innerHTML = 
           '<div style="margin-bottom:12px;">' +
             '<div style="font-size:12px;color:#666;margin-bottom:6px;">完整 Token:</div>' +
@@ -1320,9 +1408,35 @@ export default {
           const authed = await checkAuth(request, env);
           if (!authed) return respond.json({ code: 0, message: '未登录' }, { status: 401 });
         }
+        
+        // 检查文本是否过期的函数
+        async function checkExpired(id, env) {
+          const expireAt = await env.file.get(id + '_expireAt');
+          if (expireAt) {
+            const now = Date.now();
+            if (Number(expireAt) < now) {
+              // 文本已过期，删除它
+              await env.file.delete(id);
+              await env.file.delete(id + '_name');
+              await env.file.delete(id + '_title');
+              await env.file.delete(id + '_createdAt');
+              await env.file.delete(id + '_updatedAt');
+              await env.file.delete(id + '_expireAt');
+              // 从列表中移除
+              let list = await env.file.get('list');
+              if (list) {
+                list = JSON.parse(list);
+                list = list.filter(item => item !== id);
+                await env.file.put('list', JSON.stringify(list));
+              }
+              return true;
+            }
+          }
+          return false;
+        }
       if (request.method === 'POST') {
           try {
-            let { text, title, name } = await request.json();
+            let { text, title, name, expireAt } = await request.json();
             if (!text) return respond.json({ code: 0, message: '内容不能为空' }, { status: 400 });
             
             // 验证自定义显示名称格式
@@ -1383,6 +1497,11 @@ export default {
               await env.file.put(id + '_title', title);
             }
             
+            // 存储过期时间
+            if (expireAt) {
+              await env.file.put(id + '_expireAt', expireAt.toString());
+            }
+            
             let list = await env.file.get('list');
             list = list ? JSON.parse(list) : [];
             list.unshift(id);
@@ -1395,7 +1514,7 @@ export default {
           }
         } else if (request.method === 'PUT') {
           try {
-            let { id, text, title, name } = await request.json();
+            let { id, text, title, name, expireAt } = await request.json();
             if (!id || !text) return respond.json({ code: 0, message: 'ID和内容不能为空' }, { status: 400 });
             
             // 检查原ID是否存在
@@ -1488,6 +1607,15 @@ export default {
               }
             }
             
+            // 处理过期时间
+            if (expireAt !== undefined) {
+              if (expireAt) {
+                await env.file.put(newId + '_expireAt', expireAt.toString());
+              } else {
+                await env.file.delete(newId + '_expireAt');
+              }
+            }
+            
             // 如果提供了名称且与ID不同，则保存名称（用于显示）
             if (name && name !== newId) {
               await env.file.put(newId + '_name', name);
@@ -1508,6 +1636,7 @@ export default {
             await env.file.delete(id + '_title');
             await env.file.delete(id + '_createdAt');
             await env.file.delete(id + '_updatedAt');
+            await env.file.delete(id + '_expireAt');
             let list = await env.file.get('list');
             if (list) {
               list = JSON.parse(list);
@@ -1526,6 +1655,11 @@ export default {
         }
         const id = url.searchParams.get('id');
         if (!id) return new Response('Not found', { status: 404 });
+        
+        // 检查是否过期
+        const expired = await checkExpired(id, env);
+        if (expired) return new Response('Not found', { status: 404 });
+        
         const text = await env.file.get(id);
         if (!text) return new Response('Not found', { status: 404 });
           return respond.text(text);
@@ -1566,6 +1700,17 @@ export default {
         if (!title) return respond.text('');
         return respond.text(title);
       }
+      
+      // API: 获取过期时间
+      if (url.pathname === '/api/expire') {
+        const authed = await checkAuth(request, env);
+        if (!authed) return new Response('Unauthorized', { status: 401 });
+        const id = url.searchParams.get('id');
+        if (!id) return new Response('Not found', { status: 404 });
+        const expireAt = await env.file.get(id + '_expireAt');
+        if (!expireAt) return respond.text('');
+        return respond.text(expireAt);
+      }
 
       // API: 获取单条时间信息（createdAt/updatedAt）
       if (url.pathname === '/api/time') {
@@ -1582,6 +1727,11 @@ export default {
     // 直接访问短链
     if (url.pathname.length > 1) {
       const id = url.pathname.slice(1);
+      
+      // 检查是否过期
+      const expired = await checkExpired(id, env);
+      if (expired) return new Response('Not found', { status: 404 });
+      
       const text = await env.file.get(id);
       if (!text) return new Response('Not found', { status: 404 });
       return new Response(text, { 
