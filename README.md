@@ -13,7 +13,7 @@
 
 ## 🚀 快速部署
 1. Fork 或下载本项目代码
-2. 在 Cloudflare Workers 新建 Worker，上传 `file.js` 代码
+2. 在 Cloudflare Workers 新建 Worker，上传 `_worker.js` 代码
 3. 绑定KV命名空间（如`file`），并在Worker设置中配置环境变量 `file`
 4. 在KV中添加登录信息：
    - key: `user`，value: 你的用户名
