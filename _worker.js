@@ -7,7 +7,7 @@ const html = `
   <meta charset="utf-8">
   <link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><rect x="10" y="8" width="20" height="28" rx="4" fill="%23667eea"/><rect x="14" y="12" width="12" height="20" rx="2" fill="%23fff"/><path d="M34 32a8 8 0 1 0-2.5-15.6A10 10 0 1 0 8 34h26z" fill="%23a8edea" stroke="%23667eea" stroke-width="2"/><rect x="18" y="18" width="4" height="2" rx="1" fill="%23667eea"/><rect x="18" y="22" width="8" height="2" rx="1" fill="%23667eea"/><rect x="18" y="26" width="8" height="2" rx="1" fill="%23667eea"/></svg>'>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZQ-File</title>
+  <title>ZQ-TextUrl</title>
   <style>
     * {
       margin: 0;
@@ -566,7 +566,47 @@ const html = `
       margin-top: 5px;
       margin-bottom: 15px;
     }
+    
+    /* 标签页样式 */
+    .tab-container {
+      margin-bottom: 30px;
+    }
+    
+    .tab-buttons {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e1e5e9;
+    }
+    
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: #666;
+      border-bottom: 3px solid transparent;
+    }
+    
+    .tab-btn:hover {
+      color: #4a90e2;
+    }
+    
+    .tab-btn.active {
+      color: #4a90e2;
+      border-bottom: 3px solid #4a90e2;
+    }
+    
+    .tab-content {
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
   </style>
+  <script async src="https://cdn.jsdelivr.net/npm/qrcode-svg@1.1.0/dist/qrcode.min.js"></script>
 </head>
 <body>
   <div class="login-form" id="login-form">
@@ -579,39 +619,82 @@ const html = `
   <div class="container">
     <div class="header">
       <h1>
-         ZQ-File
+         ZQ-TextUrl
       </h1>
-      <p>Cloudflare Workers 驱动的文本托管服务</p>
+      <p>Cloudflare Workers 驱动的文本托管和短链接生成服务</p>
     </div>
     
     <div class="content">
-  <form id="paste-form">
-        <div class="form-group">
-          <label for="text">在这里输入你的文本...</label>
-          <textarea id="text" placeholder="请输入文本内容..."></textarea>
+      <!-- 标签页 -->
+      <div class="tab-container">
+        <div class="tab-buttons">
+          <button class="tab-btn active" onclick="switchTab('text', event)">文本</button>
+          <button class="tab-btn" onclick="switchTab('link', event)">短链接</button>
         </div>
-        <div class="form-group">
-          <label for="custom-title">自定义显示名称（可选）</label>
-          <input type="text" id="custom-title" placeholder="例如: 我的重要笔记，留空则显示链接" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px; margin-bottom: 15px;">
-          <div class="help-text">用于在列表中显示，支持任意字符，长度1-50字符</div>
+        
+        <!-- 文本功能 -->
+        <div class="tab-content" id="text-tab">
+          <form id="paste-form">
+            <div class="form-group">
+              <label for="text">在这里输入你的文本...</label>
+              <textarea id="text" placeholder="请输入文本内容..."></textarea>
+            </div>
+            <div class="form-group">
+              <label for="custom-title">自定义显示名称（可选）</label>
+              <input type="text" id="custom-title" placeholder="例如: 我的重要笔记，留空则显示链接" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px; margin-bottom: 15px;">
+              <div class="help-text">用于在列表中显示，支持任意字符，长度1-50字符</div>
+            </div>
+            <div class="form-group">
+              <label for="custom-name">自定义链接后缀（可选）</label>
+              <input type="text" id="custom-name" placeholder="例如: my-note-123，留空则自动生成" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px;">
+              <div class="help-text">支持字母、数字、连字符(-)、下划线(_)、点号(.)；其他字符会自动删除</div>
+            </div>
+            <div class="form-group">
+              <label for="expire-time">过期时间（可选）</label>
+              <input type="datetime-local" id="expire-time" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px;">
+              <div class="help-text">留空则永不过期，设置后文本将在指定时间后自动删除</div>
+            </div>
+            <button type="submit" class="btn">提交</button>
+          </form>
         </div>
-        <div class="form-group">
-          <label for="custom-name">自定义链接后缀（可选）</label>
-          <input type="text" id="custom-name" placeholder="例如: my-note-123，留空则自动生成" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px;">
-          <div class="help-text">支持字母、数字、连字符(-)、下划线(_)、点号(.)；其他字符会自动删除</div>
+        
+        <!-- 短链接功能 -->
+        <div class="tab-content" id="link-tab" style="display: none;">
+          <form id="link-form">
+            <div class="form-group">
+              <label for="original-link">原始链接</label>
+              <input type="url" id="original-link" placeholder="请输入要缩短的链接..." style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px; margin-bottom: 15px;">
+              <div class="help-text">请输入完整的URL，包括http://或https://</div>
+            </div>
+            <div class="form-group">
+              <label for="link-custom-title">自定义显示名称（可选）</label>
+              <input type="text" id="link-custom-title" placeholder="例如: 我的博客链接，留空则显示链接" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px; margin-bottom: 15px;">
+              <div class="help-text">用于在列表中显示，支持任意字符，长度1-50字符</div>
+            </div>
+            <div class="form-group">
+              <label for="link-custom-name">自定义链接后缀（可选）</label>
+              <input type="text" id="link-custom-name" placeholder="例如: my-blog，留空则自动生成" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px; margin-bottom: 15px;">
+              <div class="help-text">支持字母、数字、连字符(-)、下划线(_)、点号(.)；其他字符会自动删除</div>
+            </div>
+            <div class="form-group">
+              <label for="link-expire-time">过期时间（可选）</label>
+              <input type="datetime-local" id="link-expire-time" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px;">
+              <div class="help-text">留空则永不过期，设置后链接将在指定时间后自动失效</div>
+            </div>
+            <button type="submit" class="btn">创建短链接</button>
+          </form>
         </div>
-        <div class="form-group">
-          <label for="expire-time">过期时间（可选）</label>
-          <input type="datetime-local" id="expire-time" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px;">
-          <div class="help-text">留空则永不过期，设置后文本将在指定时间后自动删除</div>
-        </div>
-        <button type="submit" class="btn">提交</button>
-  </form>
+      </div>
       
   <div class="paste-link" id="paste-link"></div>
   <div class="paste-content" id="paste-content">
     <h4>文本内容</h4>
     <div id="paste-text"></div>
+    <div style="margin-top: 20px;">
+      <h5>二维码</h5>
+      <div id="paste-qrcode" style="margin: 10px 0;"></div>
+      <p style="font-size: 12px; color: #666;">扫描二维码访问此文本</p>
+    </div>
     <button class="btn btn-success" onclick="copyPasteContent()">复制</button>
     <button class="btn btn-secondary" onclick="closePasteContent()">取消</button>
   </div>
@@ -625,11 +708,31 @@ const html = `
 
   <script>
     const form = document.getElementById('paste-form');
+    const linkForm = document.getElementById('link-form');
     const pasteLink = document.getElementById('paste-link');
     const pasteContent = document.getElementById('paste-content');
     const allPastes = document.getElementById('all-pastes');
     
     let currentEditId = null;
+    
+    // 标签页切换函数
+    function switchTab(tabName, event) {
+      // 隐藏所有标签内容
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.style.display = 'none';
+      });
+      
+      // 移除所有标签按钮的活动状态
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // 显示选中的标签内容
+      document.getElementById(tabName + '-tab').style.display = 'block';
+      
+      // 设置选中的标签按钮为活动状态
+      event.currentTarget.classList.add('active');
+    }
     
     // 处理与验证自定义链接格式
     function sanitizeCustomName(name) {
@@ -722,6 +825,91 @@ const html = `
         }
       } catch (error) {
         showError('提交失败: ' + error.message);
+      }
+    };
+    
+    // 短链接表单提交处理
+    linkForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const originalLink = document.getElementById('original-link').value.trim();
+      const customTitle = document.getElementById('link-custom-title').value.trim();
+      let customName = document.getElementById('link-custom-name').value.trim();
+      // 自动清理非法字符
+      customName = sanitizeCustomName(customName);
+      // 回写清理后的值，便于用户看到最终结果
+      document.getElementById('link-custom-name').value = customName;
+      
+      if (!originalLink) {
+        showError('请输入原始链接');
+        return;
+      }
+      
+      // 验证链接格式
+      try {
+        new URL(originalLink);
+      } catch {
+        showError('请输入有效的URL，包括http://或https://');
+        return;
+      }
+      
+      // 验证自定义显示名称格式
+      if (customTitle && !validateCustomTitle(customTitle)) {
+        showError('自定义显示名称格式无效，长度1-50字符');
+        return;
+      }
+      
+      // 验证自定义链接格式
+      if (customName && !validateCustomName(customName)) {
+        showError('自定义链接格式无效，支持字母、数字、连字符(-)、下划线(_)、点号(.)');
+        return;
+      }
+      
+      try {
+        // 显示加载状态
+        pasteLink.innerHTML = '正在创建短链接...';
+        pasteLink.classList.add('show');
+        
+        const expireTime = document.getElementById('link-expire-time').value;
+        const res = await authFetch('/api/link', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            url: originalLink,
+            title: customTitle || null,
+            name: customName || null,
+            expireAt: expireTime ? new Date(expireTime).getTime() : null
+          })
+        });
+        
+        const data = await res.json();
+        
+        if(data.code === 1 && data.id){
+          pasteLink.innerHTML = 
+            '<div>创建成功！</div>' +
+            '<div style="margin-top: 10px;">' +
+            '<strong>短链接:</strong><br>' +
+            '<a href="/' + data.id + '" target="_blank">' + location.origin + '/' + data.id + '</a>' +
+            '</div>';
+          pasteLink.classList.add('show');
+          
+          // 清空输入框
+          document.getElementById('original-link').value = '';
+          document.getElementById('link-custom-title').value = '';
+          document.getElementById('link-custom-name').value = '';
+          document.getElementById('link-expire-time').value = '';
+          
+          // 3秒后自动消失
+          setTimeout(() => {
+            pasteLink.classList.remove('show');
+          }, 3000);
+          
+          // 刷新列表
+          loadAllPastes();
+        } else {
+          showError('创建失败: ' + (data.message || '未知错误'));
+        }
+      } catch (error) {
+        showError('创建失败: ' + error.message);
       }
     };
     
@@ -925,6 +1113,22 @@ const html = `
           const text = await res.text();
           document.getElementById('paste-text').innerText = text;
           
+          // 生成二维码
+          const qrCodeContainer = document.getElementById('paste-qrcode');
+          if (qrCodeContainer) {
+            qrCodeContainer.innerHTML = '';
+            const qrCodeUrl = location.origin + '/' + id;
+            const qr = new QRCode({
+              content: qrCodeUrl,
+              padding: 4,
+              width: 200,
+              height: 200,
+              color: '#000000',
+              background: '#FFFFFF'
+            });
+            qrCodeContainer.innerHTML = qr.svg();
+          }
+          
           // 隐藏其他可能显示的内容
           pasteLink.classList.remove('show');
           const editForm = document.querySelector('.edit-form');
@@ -951,6 +1155,51 @@ const html = `
         editForm.remove();
       }
       document.getElementById('paste-text').innerText = '';
+    }
+    
+    function showQRCode(id) {
+      // 创建二维码模态框
+      const qrModal = document.createElement('div');
+      qrModal.className = 'qr-modal';
+      qrModal.style = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;';
+      
+      const qrContent = document.createElement('div');
+      qrContent.style = 'background: white; padding: 30px; border-radius: 12px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.15);';
+      
+      const qrCodeUrl = location.origin + '/' + id;
+      const qrCodeContainer = document.createElement('div');
+      qrCodeContainer.id = 'modal-qrcode';
+      qrCodeContainer.style = 'margin: 20px 0;';
+      
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'btn btn-secondary';
+      closeBtn.innerText = '关闭';
+      closeBtn.style = 'margin-top: 20px;';
+      closeBtn.onclick = function() {
+        qrModal.remove();
+      };
+      
+      qrContent.innerHTML = '<h3>二维码</h3><p style="margin-bottom: 20px;">扫描二维码访问</p>';
+      qrContent.appendChild(qrCodeContainer);
+      qrContent.appendChild(closeBtn);
+      qrModal.appendChild(qrContent);
+      document.body.appendChild(qrModal);
+      
+      // 生成二维码
+      try {
+        const qr = new QRCode({
+          content: qrCodeUrl,
+          padding: 4,
+          width: 250,
+          height: 250,
+          color: '#000000',
+          background: '#FFFFFF'
+        });
+        qrCodeContainer.innerHTML = qr.svg();
+      } catch (error) {
+        console.error('生成二维码失败:', error);
+        qrCodeContainer.innerHTML = '<p style="color: #ff6b6b;">生成二维码失败</p>';
+      }
     }
     
     function copyPasteContent() {
@@ -1054,14 +1303,8 @@ const html = `
         .then(function(r) { return r.ok ? r.json() : []; })
         .then(function(list) {
           if(Array.isArray(list) && list.length){
-            var html = 
-              '<div class="stats">' +
-              '<span> 总共 ' + list.length + ' 个文本</span>' +
-              '</div>' +
-              '<h3> 全部文本</h3>';
-            
-            // 获取所有名称、标题、时间和过期时间
-            Promise.all(list.map(function(id) {
+            // 获取所有名称、标题、时间、过期时间和类型
+            Promise.all(list.map(function(id, index) {
               return Promise.all([
                 authFetch('/api/name?id=' + id)
                   .then(function(r) { return r.ok ? r.text() : null; })
@@ -1074,45 +1317,123 @@ const html = `
                   .catch(function() { return {}; }),
                 authFetch('/api/expire?id=' + id)
                   .then(function(r) { return r.ok ? r.text() : null; })
-                  .catch(function() { return null; })
+                  .catch(function() { return null; }),
+                // 获取类型
+                authFetch('/api/type?id=' + id)
+                  .then(function(r) { return r.ok ? r.text() : 'text'; })
+                  .catch(function() { return 'text'; })
               ]).then(function(results){
-                return { name: results[0], title: results[1], time: results[2], expireAt: results[3] };
+                return { id: id, name: results[0], title: results[1], time: results[2], expireAt: results[3], type: results[4] };
               });
             })).then(function(infoList) {
+              // 分离文本和短链接
+              const textItems = [];
+              const linkItems = [];
+              
               for(var i = 0; i < list.length; i++){
-                var id = list[i];
-                var name = infoList[i].name;
-                var title = infoList[i].title;
-                var time = infoList[i].time || {};
-                var expireAt = infoList[i].expireAt;
-                var ts = time.updatedAt || time.createdAt || null;
-                var link = location.origin + '/' + id;
-                var timeText = ts ? new Date(ts).toLocaleString() : '';
-                var expireText = expireAt ? new Date(Number(expireAt)).toLocaleString() : '永不过期';
-                var expireColor = expireAt ? '#ff6b6b' : '#51cf66';
-                var displayName = title ? (i + 1) + '. ' + title + ' (' + link + ')' : 
-                                 name ? (i + 1) + '. ' + name + ' (' + link + ')' : 
-                                 (i + 1) + '. ' + link;
-                
+                const item = {
+                  id: list[i],
+                  name: infoList[i].name,
+                  title: infoList[i].title,
+                  time: infoList[i].time,
+                  expireAt: infoList[i].expireAt,
+                  type: infoList[i].type
+                };
+                if (item.type === 'link') {
+                  linkItems.push(item);
+                } else {
+                  textItems.push(item);
+                }
+              }
+              
+              var html = '';
+              
+              // 显示文本
+              if (textItems.length > 0) {
                 html += 
-                  '<div class="paste-item">' +
-                  '<a href="javascript:void(0)" data-id="' + id + '" class="paste-link-item" style="cursor: pointer;">' + displayName + '</a>' +
-                  (timeText ? '<div style="color:#666;font-size:12px;margin-left:10px;white-space:nowrap;">' + timeText + '</div>' : '') +
-                  '<div style="color:' + expireColor + ';font-size:12px;margin-left:10px;white-space:nowrap;">' + (expireAt ? '过期: ' + expireText : expireText) + '</div>' +
-                  '<div class="paste-actions">' +
+                  '<div class="stats">' +
+                  '<span> 总共 ' + textItems.length + ' 个文本</span>' +
+                  '</div>' +
+                  '<h3> 全部文本</h3>';
+                
+                for(var i = 0; i < textItems.length; i++){
+                  var item = textItems[i];
+                  var id = item.id;
+                  var name = item.name;
+                  var title = item.title;
+                  var time = item.time || {};
+                  var expireAt = item.expireAt;
+                  var ts = time.updatedAt || time.createdAt || null;
+                  var link = location.origin + '/' + id;
+                  var timeText = ts ? new Date(ts).toLocaleString() : '';
+                  var expireText = expireAt ? new Date(Number(expireAt)).toLocaleString() : '永不过期';
+                  var expireColor = expireAt ? '#ff6b6b' : '#51cf66';
+                  var displayName = title ? (i + 1) + '. ' + title + ' (' + link + ')' : 
+                                   name ? (i + 1) + '. ' + name + ' (' + link + ')' : 
+                                   (i + 1) + '. ' + link;
+                  
+                  html += 
+                    '<div class="paste-item">' +
+                    '<a href="javascript:void(0)" data-id="' + id + '" class="paste-link-item text-item" style="cursor: pointer;">' + displayName + '</a>' +
+                    (timeText ? '<div style="color:#666;font-size:12px;margin-left:10px;white-space:nowrap;">' + timeText + '</div>' : '') +
+                    '<div style="color:' + expireColor + ';font-size:12px;margin-left:10px;white-space:nowrap;">' + (expireAt ? '过期: ' + expireText : expireText) + '</div>' +
+                    '<div class="paste-actions">' +
                   '<button class="action-btn copy-btn" data-id="' + id + '" title="复制链接">复制</button>' +
+                  '<button class="action-btn qr-btn" data-id="' + id + '" title="显示二维码">二维码</button>' +
                   '<button class="action-btn edit-btn" data-id="' + id + '" title="编辑">编辑</button>' +
                   '<button class="action-btn delete-btn" data-id="' + id + '" title="删除">删除</button>' +
                   '</div>' +
                   '</div>';
+                }
+              }
+              
+              // 显示短链接
+              if (linkItems.length > 0) {
+                html += 
+                  '<div style="margin-top: 40px;">' +
+                  '<div class="stats">' +
+                  '<span> 总共 ' + linkItems.length + ' 个短链接</span>' +
+                  '</div>' +
+                  '<h3> 全部短链接</h3>';
+                
+                for(var i = 0; i < linkItems.length; i++){
+                  var item = linkItems[i];
+                  var id = item.id;
+                  var name = item.name;
+                  var title = item.title;
+                  var time = item.time || {};
+                  var expireAt = item.expireAt;
+                  var ts = time.updatedAt || time.createdAt || null;
+                  var link = location.origin + '/' + id;
+                  var timeText = ts ? new Date(ts).toLocaleString() : '';
+                  var expireText = expireAt ? new Date(Number(expireAt)).toLocaleString() : '永不过期';
+                  var expireColor = expireAt ? '#ff6b6b' : '#51cf66';
+                  var displayName = title ? (i + 1) + '. ' + title + ' (' + link + ')' : 
+                                   name ? (i + 1) + '. ' + name + ' (' + link + ')' : 
+                                   (i + 1) + '. ' + link;
+                  
+                  html += 
+                    '<div class="paste-item">' +
+                    '<a href="' + link + '" target="_blank" data-id="' + id + '" class="paste-link-item link-item" style="cursor: pointer;">' + displayName + '</a>' +
+                    (timeText ? '<div style="color:#666;font-size:12px;margin-left:10px;white-space:nowrap;">' + timeText + '</div>' : '') +
+                    '<div style="color:' + expireColor + ';font-size:12px;margin-left:10px;white-space:nowrap;">' + (expireAt ? '过期: ' + expireText : expireText) + '</div>' +
+                    '<div class="paste-actions">' +
+                  '<button class="action-btn copy-btn" data-id="' + id + '" title="复制链接">复制</button>' +
+                  '<button class="action-btn qr-btn" data-id="' + id + '" title="显示二维码">二维码</button>' +
+                  '<button class="action-btn edit-btn" data-id="' + id + '" title="编辑">编辑</button>' +
+                  '<button class="action-btn delete-btn" data-id="' + id + '" title="删除">删除</button>' +
+                  '</div>' +
+                  '</div>';
+                }
+                html += '</div>';
               }
               
               allPastes.innerHTML = html;
               
               // 添加事件监听器
-              var links = allPastes.querySelectorAll('.paste-link-item');
-              for(var j = 0; j < links.length; j++){
-                links[j].addEventListener('click', function() {
+              var textLinks = allPastes.querySelectorAll('.text-item');
+              for(var j = 0; j < textLinks.length; j++){
+                textLinks[j].addEventListener('click', function() {
                   showPasteContent(this.getAttribute('data-id'));
                 });
               }
@@ -1137,9 +1458,17 @@ const html = `
                   deletePaste(this.getAttribute('data-id'));
                 });
               }
+              
+              // 添加二维码按钮事件监听器
+              var qrBtns = allPastes.querySelectorAll('.qr-btn');
+              for(var n = 0; n < qrBtns.length; n++){
+                qrBtns[n].addEventListener('click', function() {
+                  showQRCode(this.getAttribute('data-id'));
+                });
+              }
             });
           } else {
-            allPastes.innerHTML = '<h3>暂无文本</h3><p style="color: #666; text-align: center;">还没有任何内容，快来创建第一个文本吧！</p>';
+            allPastes.innerHTML = '<h3>暂无内容</h3><p style="color: #666; text-align: center;">还没有任何内容，快来创建第一个文本或短链接吧！</p>';
           }
         })
         .catch(function(error) {
@@ -1365,20 +1694,20 @@ export default {
       // 登录接口
       if (url.pathname === '/api/login' && request.method === 'POST') {
         const { username, password } = await request.json();
-        const realUser = await env.file.get('user');
-        const realPwd = await env.file.get('password');
+        const realUser = await env.texturl.get('user');
+        const realPwd = await env.texturl.get('password');
         if (realUser && realPwd && username === realUser && password === realPwd) {
           // 先查是否已有token
-          let token = await env.file.get('user_token:' + username);
+          let token = await env.texturl.get('user_token:' + username);
           if (token) {
             // 检查token是否还有效
-            const user = await env.file.get('token:' + token);
+            const user = await env.texturl.get('token:' + token);
             if (user === username) return respond.json({ code: 1, token });
           }
           // 没有token或token已失效，生成新token
           token = Math.random().toString(36).slice(2) + Date.now().toString(36);
-          await env.file.put('token:' + token, username, { expirationTtl: 2592000 });
-          await env.file.put('user_token:' + username, token, { expirationTtl: 2592000 });
+          await env.texturl.put('token:' + token, username, { expirationTtl: 2592000 });
+          await env.texturl.put('user_token:' + username, token, { expirationTtl: 2592000 });
           return respond.json({ code: 1, token });
         } else {
           return respond.json({ code: 0, message: '用户名或密码错误' });
@@ -1390,12 +1719,39 @@ export default {
         const auth = request.headers.get('Authorization') || '';
         if (!auth.startsWith('Bearer ')) return false;
         const token = auth.slice(7);
-        const user = await env.file.get('token:' + token);
+        const user = await env.texturl.get('token:' + token);
         return !!user;
       }
 
-      // API: 新建/获取/编辑/删除文本
-    if (url.pathname.startsWith('/api/paste')) {
+      // 检查是否过期的函数
+      async function checkExpired(id, env) {
+        const expireAt = await env.texturl.get(id + '_expireAt');
+        if (expireAt) {
+          const now = Date.now();
+          if (Number(expireAt) < now) {
+            // 内容已过期，删除它
+            await env.texturl.delete(id);
+            await env.texturl.delete(id + '_name');
+            await env.texturl.delete(id + '_title');
+            await env.texturl.delete(id + '_createdAt');
+            await env.texturl.delete(id + '_updatedAt');
+            await env.texturl.delete(id + '_expireAt');
+            await env.texturl.delete(id + '_type');
+            // 从列表中移除
+            let list = await env.texturl.get('list');
+            if (list) {
+              list = JSON.parse(list);
+              list = list.filter(item => item !== id);
+              await env.texturl.put('list', JSON.stringify(list));
+            }
+            return true;
+          }
+        }
+        return false;
+      }
+
+      // API: 新建/获取/编辑/删除短链接
+      if (url.pathname.startsWith('/api/link')) {
         // 判断是否来自ZQ-SubLink指定域名
         const fromZQSubLink = 
           request.headers.get('X-From') === 'ZQ-SubLink' &&
@@ -1409,30 +1765,273 @@ export default {
           if (!authed) return respond.json({ code: 0, message: '未登录' }, { status: 401 });
         }
         
-        // 检查文本是否过期的函数
-        async function checkExpired(id, env) {
-          const expireAt = await env.file.get(id + '_expireAt');
-          if (expireAt) {
-            const now = Date.now();
-            if (Number(expireAt) < now) {
-              // 文本已过期，删除它
-              await env.file.delete(id);
-              await env.file.delete(id + '_name');
-              await env.file.delete(id + '_title');
-              await env.file.delete(id + '_createdAt');
-              await env.file.delete(id + '_updatedAt');
-              await env.file.delete(id + '_expireAt');
-              // 从列表中移除
-              let list = await env.file.get('list');
-              if (list) {
-                list = JSON.parse(list);
-                list = list.filter(item => item !== id);
-                await env.file.put('list', JSON.stringify(list));
-              }
-              return true;
+        if (request.method === 'POST') {
+          try {
+            let { url: originalUrl, title, name, expireAt } = await request.json();
+            if (!originalUrl) return respond.json({ code: 0, message: '链接不能为空' }, { status: 400 });
+            
+            // 验证链接格式
+            try {
+              new URL(originalUrl);
+            } catch {
+              return respond.json({ code: 0, message: '请输入有效的URL，包括http://或https://' }, { status: 400 });
             }
+            
+            // 验证自定义显示名称格式
+            if (title && (title.length < 1 || title.length > 50)) {
+              return respond.json({ 
+                code: 0, 
+                message: '自定义显示名称格式无效，长度1-50字符' 
+              }, { status: 400 });
+            }
+            
+            // 服务器端清理并验证自定义链接后缀格式
+            if (name) {
+              name = name.replace(/[^a-zA-Z0-9._-]/g, '');
+            }
+            if (name && !/^[a-zA-Z0-9._-]+$/.test(name)) {
+              return respond.json({ 
+                code: 0, 
+                message: '自定义链接格式无效，支持字母、数字、连字符(-)、下划线(_)、点号(.)' 
+              }, { status: 400 });
+            }
+            
+            // 生成唯一ID（如果提供了自定义名称，则使用它作为ID）
+            const reserved = ['user', 'password', 'list', 'api'];
+            let id;
+            
+            if (name) {
+              // 使用自定义名称作为ID
+              if (reserved.includes(name)) {
+                return respond.json({ 
+                  code: 0, 
+                  message: '该名称为系统保留字，请更换其他名称' 
+                }, { status: 400 });
+              }
+              
+              // 检查ID是否已存在
+              const existing = await env.texturl.get(name);
+              if (existing) {
+                return respond.json({ 
+                  code: 0, 
+                  message: '该链接已存在，请更换其他名称' 
+                }, { status: 409 });
+              }
+              
+              id = name;
+            } else {
+              // 自动生成ID
+              do {
+                id = Math.random().toString(36).slice(2, 8);
+              } while (reserved.includes(id));
+            }
+            
+            await env.texturl.put(id, originalUrl);
+            // 记录创建时间（毫秒）
+            await env.texturl.put(id + '_createdAt', Date.now().toString());
+            // 标记为短链接类型
+            await env.texturl.put(id + '_type', 'link');
+            
+            // 存储自定义显示名称
+            if (title) {
+              await env.texturl.put(id + '_title', title);
+            }
+            
+            // 存储过期时间
+            if (expireAt) {
+              await env.texturl.put(id + '_expireAt', expireAt.toString());
+            }
+            
+            let list = await env.texturl.get('list');
+            list = list ? JSON.parse(list) : [];
+            list.unshift(id);
+            if (list.length > 100) list = list.slice(0, 100);
+            await env.texturl.put('list', JSON.stringify(list));
+            
+            return respond.json({ code: 1, id });
+          } catch (error) {
+            return respond.json({ code: 0, message: '处理请求失败: ' + error.message }, { status: 500 });
           }
-          return false;
+        } else if (request.method === 'PUT') {
+          try {
+            let { id, url: originalUrl, title, name, expireAt } = await request.json();
+            if (!id || !originalUrl) return respond.json({ code: 0, message: 'ID和链接不能为空' }, { status: 400 });
+            
+            // 验证链接格式
+            try {
+              new URL(originalUrl);
+            } catch {
+              return respond.json({ code: 0, message: '请输入有效的URL，包括http://或https://' }, { status: 400 });
+            }
+            
+            // 检查原ID是否存在
+            const existing = await env.texturl.get(id);
+            if (!existing) return respond.json({ code: 0, message: '链接不存在' }, { status: 404 });
+            
+            // 验证自定义显示名称格式
+            if (title && (title.length < 1 || title.length > 50)) {
+              return respond.json({ 
+                code: 0, 
+                message: '自定义显示名称格式无效，长度1-50字符' 
+              }, { status: 400 });
+            }
+            
+            // 如果要修改名称（链接后缀）
+            let newId = id;
+            if (name !== undefined && name !== (await env.texturl.get(id + '_name') || '')) {
+              // 验证新名称格式
+              if (name) {
+                name = name.replace(/[^a-zA-Z0-9._-]/g, '');
+              }
+              if (name && !/^[a-zA-Z0-9._-]+$/.test(name)) {
+                return respond.json({ 
+                  code: 0, 
+                  message: '自定义链接格式无效，支持字母、数字、连字符(-)、下划线(_)、点号(.)' 
+                }, { status: 400 });
+              }
+              
+              const reserved = ['user', 'password', 'list', 'api'];
+              
+              // 如果提供了新名称且与原ID不同
+              if (name && name !== id) {
+                if (reserved.includes(name)) {
+                  return respond.json({ 
+                    code: 0, 
+                    message: '该名称为系统保留字，请更换其他名称' 
+                  }, { status: 400 });
+                }
+                
+                // 检查新ID是否已存在
+                const nameExists = await env.texturl.get(name);
+                if (nameExists) {
+                  return respond.json({ 
+                    code: 0, 
+                    message: '该链接已存在，请更换其他名称' 
+                  }, { status: 409 });
+                }
+                
+                // 迁移数据到新ID
+                newId = name;
+                
+                // 复制原数据到新ID
+                await env.texturl.put(newId, originalUrl);
+                
+                // 复制时间戳
+                const createdAt = await env.texturl.get(id + '_createdAt');
+                if (createdAt) await env.texturl.put(newId + '_createdAt', createdAt);
+                
+                // 复制类型标记
+                await env.texturl.put(newId + '_type', 'link');
+                
+                // 删除原ID数据
+                await env.texturl.delete(id);
+                await env.texturl.delete(id + '_name');
+                await env.texturl.delete(id + '_createdAt');
+                await env.texturl.delete(id + '_updatedAt');
+                await env.texturl.delete(id + '_expireAt');
+                await env.texturl.delete(id + '_type');
+                
+                // 更新列表中的ID
+                let list = await env.texturl.get('list');
+                if (list) {
+                  list = JSON.parse(list);
+                  list = list.map(item => item === id ? newId : item);
+                  await env.texturl.put('list', JSON.stringify(list));
+                }
+              } else if (!name) {
+                // 如果清空名称，不改变ID
+                await env.texturl.delete(id + '_name');
+              }
+            } else {
+              // 不修改名称，只更新内容
+              await env.texturl.put(id, originalUrl);
+            }
+            
+            // 记录修改时间（毫秒）
+            await env.texturl.put(newId + '_updatedAt', Date.now().toString());
+            
+            // 处理自定义显示名称
+            if (title !== undefined) {
+              if (title) {
+                await env.texturl.put(newId + '_title', title);
+              } else {
+                await env.texturl.delete(newId + '_title');
+              }
+            }
+            
+            // 处理过期时间
+            if (expireAt !== undefined) {
+              if (expireAt) {
+                await env.texturl.put(newId + '_expireAt', expireAt.toString());
+              } else {
+                await env.texturl.delete(newId + '_expireAt');
+              }
+            }
+            
+            // 如果提供了名称且与ID不同，则保存名称（用于显示）
+            if (name && name !== newId) {
+              await env.texturl.put(newId + '_name', name);
+            }
+            
+            return respond.json({ code: 1, message: '更新成功', id: newId });
+          } catch (error) {
+            return respond.json({ code: 0, message: '更新失败: ' + error.message }, { status: 500 });
+          }
+        } else if (request.method === 'DELETE') {
+          try {
+            const { id } = await request.json();
+            if (!id) return respond.json({ code: 0, message: 'ID不能为空' }, { status: 400 });
+            const existing = await env.texturl.get(id);
+            if (!existing) return respond.json({ code: 0, message: '链接不存在' }, { status: 404 });
+            await env.texturl.delete(id);
+            await env.texturl.delete(id + '_name');
+            await env.texturl.delete(id + '_title');
+            await env.texturl.delete(id + '_createdAt');
+            await env.texturl.delete(id + '_updatedAt');
+            await env.texturl.delete(id + '_expireAt');
+            await env.texturl.delete(id + '_type');
+            let list = await env.texturl.get('list');
+            if (list) {
+              list = JSON.parse(list);
+              list = list.filter(item => item !== id);
+              await env.texturl.put('list', JSON.stringify(list));
+            }
+            return respond.json({ code: 1, message: '删除成功' });
+          } catch (error) {
+            return respond.json({ code: 0, message: '删除失败: ' + error.message }, { status: 500 });
+          }
+        } else if (request.method === 'GET') {
+          // 获取内容也需要token校验
+          const authed = await checkAuth(request, env);
+          if (!authed) {
+            return respond.json({ code: 0, message: '未授权' }, { status: 401 });
+          }
+          const id = url.searchParams.get('id');
+          if (!id) return respond.json({ code: 0, message: 'Not found' }, { status: 404 });
+          
+          // 检查是否过期
+          const expired = await checkExpired(id, env);
+          if (expired) return respond.json({ code: 0, message: 'Not found' }, { status: 404 });
+          
+          const linkUrl = await env.texturl.get(id);
+          if (!linkUrl) return respond.json({ code: 0, message: 'Not found' }, { status: 404 });
+            return respond.text(linkUrl);
+          }
+        }
+      
+      // API: 新建/获取/编辑/删除文本
+    if (url.pathname.startsWith('/api/paste')) {
+        // 判断是否来自ZQ-SubLink指定域名
+        const fromZQSubLink = 
+          request.headers.get('X-From') === 'ZQ-SubLink' &&
+          (
+            request.headers.get('Origin') === 'https://sublink.vpnjacky.dpdns.org' ||
+            (request.headers.get('Referer') && request.headers.get('Referer').startsWith('https://sublink.vpnjacky.dpdns.org'))
+          );
+        // 只有PUT/DELETE需要token，POST需要token但ZQ-SubLink可以免token
+        if (['PUT','DELETE'].includes(request.method) || (request.method === 'POST' && !fromZQSubLink)) {
+          const authed = await checkAuth(request, env);
+          if (!authed) return respond.json({ code: 0, message: '未登录' }, { status: 401 });
         }
       if (request.method === 'POST') {
           try {
@@ -1472,7 +2071,7 @@ export default {
               }
               
               // 检查ID是否已存在
-              const existing = await env.file.get(name);
+              const existing = await env.texturl.get(name);
               if (existing) {
                 return respond.json({ 
                   code: 0, 
@@ -1488,25 +2087,27 @@ export default {
               } while (reserved.includes(id));
             }
             
-            await env.file.put(id, text);
-            // 记录创建时间（毫秒）
-            await env.file.put(id + '_createdAt', Date.now().toString());
-            
-            // 存储自定义显示名称
-            if (title) {
-              await env.file.put(id + '_title', title);
-            }
+            await env.texturl.put(id, text);
+        // 记录创建时间（毫秒）
+        await env.texturl.put(id + '_createdAt', Date.now().toString());
+        // 标记为文本类型
+        await env.texturl.put(id + '_type', 'text');
+        
+        // 存储自定义显示名称
+        if (title) {
+          await env.texturl.put(id + '_title', title);
+        }
             
             // 存储过期时间
             if (expireAt) {
-              await env.file.put(id + '_expireAt', expireAt.toString());
+              await env.texturl.put(id + '_expireAt', expireAt.toString());
             }
             
-            let list = await env.file.get('list');
+            let list = await env.texturl.get('list');
             list = list ? JSON.parse(list) : [];
             list.unshift(id);
             if (list.length > 100) list = list.slice(0, 100);
-            await env.file.put('list', JSON.stringify(list));
+            await env.texturl.put('list', JSON.stringify(list));
             
             return respond.json({ code: 1, id });
           } catch (error) {
@@ -1518,7 +2119,7 @@ export default {
             if (!id || !text) return respond.json({ code: 0, message: 'ID和内容不能为空' }, { status: 400 });
             
             // 检查原ID是否存在
-            const existing = await env.file.get(id);
+            const existing = await env.texturl.get(id);
             if (!existing) return respond.json({ code: 0, message: '文本不存在' }, { status: 404 });
             
             // 验证自定义显示名称格式
@@ -1531,7 +2132,7 @@ export default {
             
             // 如果要修改名称（链接后缀）
             let newId = id;
-            if (name !== undefined && name !== (await env.file.get(id + '_name') || '')) {
+            if (name !== undefined && name !== (await env.texturl.get(id + '_name') || '')) {
               // 验证新名称格式
               if (name) {
                 name = name.replace(/[^a-zA-Z0-9._-]/g, '');
@@ -1555,7 +2156,7 @@ export default {
                 }
                 
                 // 检查新ID是否已存在
-                const nameExists = await env.file.get(name);
+                const nameExists = await env.texturl.get(name);
                 if (nameExists) {
                   return respond.json({ 
                     code: 0, 
@@ -1567,58 +2168,62 @@ export default {
                 newId = name;
                 
                 // 复制原数据到新ID
-                await env.file.put(newId, text);
-                
-                // 复制时间戳
-                const createdAt = await env.file.get(id + '_createdAt');
-                if (createdAt) await env.file.put(newId + '_createdAt', createdAt);
-                
-                // 删除原ID数据
-                await env.file.delete(id);
-                await env.file.delete(id + '_name');
-                await env.file.delete(id + '_createdAt');
-                await env.file.delete(id + '_updatedAt');
+          await env.texturl.put(newId, text);
+          
+          // 复制时间戳
+          const createdAt = await env.texturl.get(id + '_createdAt');
+          if (createdAt) await env.texturl.put(newId + '_createdAt', createdAt);
+          
+          // 复制类型标记
+          await env.texturl.put(newId + '_type', 'text');
+          
+          // 删除原ID数据
+          await env.texturl.delete(id);
+          await env.texturl.delete(id + '_name');
+          await env.texturl.delete(id + '_createdAt');
+          await env.texturl.delete(id + '_updatedAt');
+          await env.texturl.delete(id + '_type');
                 
                 // 更新列表中的ID
-                let list = await env.file.get('list');
+                let list = await env.texturl.get('list');
                 if (list) {
                   list = JSON.parse(list);
                   list = list.map(item => item === id ? newId : item);
-                  await env.file.put('list', JSON.stringify(list));
+                  await env.texturl.put('list', JSON.stringify(list));
                 }
               } else if (!name) {
                 // 如果清空名称，不改变ID
-                await env.file.delete(id + '_name');
+                await env.texturl.delete(id + '_name');
               }
             } else {
               // 不修改名称，只更新内容
-              await env.file.put(id, text);
+              await env.texturl.put(id, text);
             }
             
             // 记录修改时间（毫秒）
-            await env.file.put(newId + '_updatedAt', Date.now().toString());
+            await env.texturl.put(newId + '_updatedAt', Date.now().toString());
             
             // 处理自定义显示名称
             if (title !== undefined) {
               if (title) {
-                await env.file.put(newId + '_title', title);
+                await env.texturl.put(newId + '_title', title);
               } else {
-                await env.file.delete(newId + '_title');
+                await env.texturl.delete(newId + '_title');
               }
             }
             
             // 处理过期时间
             if (expireAt !== undefined) {
               if (expireAt) {
-                await env.file.put(newId + '_expireAt', expireAt.toString());
+                await env.texturl.put(newId + '_expireAt', expireAt.toString());
               } else {
-                await env.file.delete(newId + '_expireAt');
+                await env.texturl.delete(newId + '_expireAt');
               }
             }
             
             // 如果提供了名称且与ID不同，则保存名称（用于显示）
             if (name && name !== newId) {
-              await env.file.put(newId + '_name', name);
+              await env.texturl.put(newId + '_name', name);
             }
             
             return respond.json({ code: 1, message: '更新成功', id: newId });
@@ -1629,39 +2234,40 @@ export default {
           try {
             const { id } = await request.json();
             if (!id) return respond.json({ code: 0, message: 'ID不能为空' }, { status: 400 });
-            const existing = await env.file.get(id);
+            const existing = await env.texturl.get(id);
             if (!existing) return respond.json({ code: 0, message: '文本不存在' }, { status: 404 });
-            await env.file.delete(id);
-            await env.file.delete(id + '_name');
-            await env.file.delete(id + '_title');
-            await env.file.delete(id + '_createdAt');
-            await env.file.delete(id + '_updatedAt');
-            await env.file.delete(id + '_expireAt');
-            let list = await env.file.get('list');
+            await env.texturl.delete(id);
+        await env.texturl.delete(id + '_name');
+        await env.texturl.delete(id + '_title');
+        await env.texturl.delete(id + '_createdAt');
+        await env.texturl.delete(id + '_updatedAt');
+        await env.texturl.delete(id + '_expireAt');
+        await env.texturl.delete(id + '_type');
+            let list = await env.texturl.get('list');
             if (list) {
               list = JSON.parse(list);
               list = list.filter(item => item !== id);
-              await env.file.put('list', JSON.stringify(list));
+              await env.texturl.put('list', JSON.stringify(list));
             }
             return respond.json({ code: 1, message: '删除成功' });
           } catch (error) {
             return respond.json({ code: 0, message: '删除失败: ' + error.message }, { status: 500 });
           }
-      } else if (request.method === 'GET') {
+        } else if (request.method === 'GET') {
         // 获取内容也需要token校验
         const authed = await checkAuth(request, env);
         if (!authed) {
-          return new Response('Unauthorized', { status: 401 });
+          return respond.json({ code: 0, message: '未授权' }, { status: 401 });
         }
         const id = url.searchParams.get('id');
-        if (!id) return new Response('Not found', { status: 404 });
+        if (!id) return respond.json({ code: 0, message: 'Not found' }, { status: 404 });
         
         // 检查是否过期
         const expired = await checkExpired(id, env);
-        if (expired) return new Response('Not found', { status: 404 });
+        if (expired) return respond.json({ code: 0, message: 'Not found' }, { status: 404 });
         
-        const text = await env.file.get(id);
-        if (!text) return new Response('Not found', { status: 404 });
+        const text = await env.texturl.get(id);
+        if (!text) return respond.json({ code: 0, message: 'Not found' }, { status: 404 });
           return respond.text(text);
         }
       }
@@ -1671,7 +2277,7 @@ export default {
         const authed = await checkAuth(request, env);
         if (!authed) return new Response('Unauthorized', { status: 401 });
         try {
-          let list = await env.file.get('list');
+          let list = await env.texturl.get('list');
           list = list ? JSON.parse(list) : [];
           return respond.json(list);
         } catch (error) {
@@ -1682,10 +2288,10 @@ export default {
       // API: 获取自定义名称
       if (url.pathname === '/api/name') {
         const authed = await checkAuth(request, env);
-        if (!authed) return new Response('Unauthorized', { status: 401 });
+        if (!authed) return respond.json({ code: 0, message: '未授权' }, { status: 401 });
         const id = url.searchParams.get('id');
-        if (!id) return new Response('Not found', { status: 404 });
-        const name = await env.file.get(id + '_name');
+        if (!id) return respond.json({ code: 0, message: 'Not found' }, { status: 404 });
+        const name = await env.texturl.get(id + '_name');
         if (!name) return respond.text('');
         return respond.text(name);
       }
@@ -1693,10 +2299,10 @@ export default {
       // API: 获取自定义显示名称
       if (url.pathname === '/api/title') {
         const authed = await checkAuth(request, env);
-        if (!authed) return new Response('Unauthorized', { status: 401 });
+        if (!authed) return respond.json({ code: 0, message: '未授权' }, { status: 401 });
         const id = url.searchParams.get('id');
-        if (!id) return new Response('Not found', { status: 404 });
-        const title = await env.file.get(id + '_title');
+        if (!id) return respond.json({ code: 0, message: 'Not found' }, { status: 404 });
+        const title = await env.texturl.get(id + '_title');
         if (!title) return respond.text('');
         return respond.text(title);
       }
@@ -1704,10 +2310,10 @@ export default {
       // API: 获取过期时间
       if (url.pathname === '/api/expire') {
         const authed = await checkAuth(request, env);
-        if (!authed) return new Response('Unauthorized', { status: 401 });
+        if (!authed) return respond.json({ code: 0, message: '未授权' }, { status: 401 });
         const id = url.searchParams.get('id');
-        if (!id) return new Response('Not found', { status: 404 });
-        const expireAt = await env.file.get(id + '_expireAt');
+        if (!id) return respond.json({ code: 0, message: 'Not found' }, { status: 404 });
+        const expireAt = await env.texturl.get(id + '_expireAt');
         if (!expireAt) return respond.text('');
         return respond.text(expireAt);
       }
@@ -1715,13 +2321,24 @@ export default {
       // API: 获取单条时间信息（createdAt/updatedAt）
       if (url.pathname === '/api/time') {
         const authed = await checkAuth(request, env);
-        if (!authed) return new Response('Unauthorized', { status: 401 });
+        if (!authed) return respond.json({ code: 0, message: '未授权' }, { status: 401 });
         const id = url.searchParams.get('id');
-        if (!id) return new Response('Not found', { status: 404 });
-        const createdAt = await env.file.get(id + '_createdAt');
-        const updatedAt = await env.file.get(id + '_updatedAt');
+        if (!id) return respond.json({ code: 0, message: 'Not found' }, { status: 404 });
+        const createdAt = await env.texturl.get(id + '_createdAt');
+        const updatedAt = await env.texturl.get(id + '_updatedAt');
         const result = { createdAt: createdAt ? Number(createdAt) : null, updatedAt: updatedAt ? Number(updatedAt) : null };
         return respond.json(result);
+      }
+      
+      // API: 获取内容类型
+      if (url.pathname === '/api/type') {
+        const authed = await checkAuth(request, env);
+        if (!authed) return respond.json({ code: 0, message: '未授权' }, { status: 401 });
+        const id = url.searchParams.get('id');
+        if (!id) return respond.json({ code: 0, message: 'Not found' }, { status: 404 });
+        const type = await env.texturl.get(id + '_type');
+        if (!type) return respond.text('text');
+        return respond.text(type);
       }
       
     // 直接访问短链
@@ -1732,14 +2349,29 @@ export default {
       const expired = await checkExpired(id, env);
       if (expired) return new Response('Not found', { status: 404 });
       
-      const text = await env.file.get(id);
-      if (!text) return new Response('Not found', { status: 404 });
-      return new Response(text, { 
-        headers: { 
-          'content-type': 'text/plain; charset=utf-8',
-          ...corsHeaders
-        } 
-      });
+      const content = await env.texturl.get(id);
+      if (!content) return new Response('Not found', { status: 404 });
+      
+      // 检查类型
+      const type = await env.texturl.get(id + '_type');
+      if (type === 'link') {
+        // 是短链接，重定向
+        return new Response(null, {
+          status: 302,
+          headers: {
+            'Location': content,
+            ...corsHeaders
+          }
+        });
+      } else {
+        // 是文本，显示内容
+        return new Response(content, { 
+          headers: { 
+            'content-type': 'text/plain; charset=utf-8',
+            ...corsHeaders
+          } 
+        });
+      }
     }
       
       return respond.html(html);
