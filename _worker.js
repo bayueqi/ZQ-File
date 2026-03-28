@@ -194,6 +194,49 @@ const html = `
       color: #764ba2;
     }
     
+    /* 新的简单提示框样式 */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .toast {
+      background: white;
+      color: #333;
+      padding: 12px 20px;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      font-size: 14px;
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+    
     .paste-content {
       background: #f8f9fa;
       padding: 20px;
@@ -686,7 +729,7 @@ const html = `
         </div>
       </div>
       
-  <div class="paste-link" id="paste-link"></div>
+  <div class="toast-container" id="toast-container"></div>
   <div class="paste-content" id="paste-content">
     <h4>文本内容</h4>
     <div id="paste-text"></div>
@@ -709,7 +752,6 @@ const html = `
   <script>
     const form = document.getElementById('paste-form');
     const linkForm = document.getElementById('link-form');
-    const pasteLink = document.getElementById('paste-link');
     const pasteContent = document.getElementById('paste-content');
     const allPastes = document.getElementById('all-pastes');
     
@@ -779,10 +821,6 @@ const html = `
       }
       
       try {
-        // 显示加载状态
-        pasteLink.innerHTML = '正在提交...';
-        pasteLink.classList.add('show');
-        
       const expireTime = document.getElementById('expire-time').value;
       const res = await authFetch('/api/paste', {
         method: 'POST',
@@ -798,13 +836,7 @@ const html = `
       const data = await res.json();
         
         if(data.code === 1 && data.id){
-          pasteLink.innerHTML = 
-            '<div>提交成功！</div>' +
-            '<div style="margin-top: 10px;">' +
-            '<strong>你的链接:</strong><br>' +
-            '<a href="/' + data.id + '" target="_blank">' + location.origin + '/' + data.id + '</a>' +
-            '</div>';
-          pasteLink.classList.add('show');
+          showToast('创建成功');
           pasteContent.classList.remove('show');
           
           // 清空输入框
@@ -813,18 +845,13 @@ const html = `
           document.getElementById('custom-name').value = '';
           document.getElementById('expire-time').value = '';
           
-          // 3秒后自动消失
-          setTimeout(() => {
-            pasteLink.classList.remove('show');
-          }, 3000);
-          
           // 刷新列表
           loadAllPastes();
         } else {
-          showError('提交失败: ' + (data.message || '未知错误'));
+          showError('创建失败');
         }
       } catch (error) {
-        showError('提交失败: ' + error.message);
+        showError('创建失败');
       }
     };
     
@@ -865,10 +892,6 @@ const html = `
       }
       
       try {
-        // 显示加载状态
-        pasteLink.innerHTML = '正在创建短链接...';
-        pasteLink.classList.add('show');
-        
         const expireTime = document.getElementById('link-expire-time').value;
         const res = await authFetch('/api/link', {
           method: 'POST',
@@ -884,13 +907,7 @@ const html = `
         const data = await res.json();
         
         if(data.code === 1 && data.id){
-          pasteLink.innerHTML = 
-            '<div>创建成功！</div>' +
-            '<div style="margin-top: 10px;">' +
-            '<strong>短链接:</strong><br>' +
-            '<a href="/' + data.id + '" target="_blank">' + location.origin + '/' + data.id + '</a>' +
-            '</div>';
-          pasteLink.classList.add('show');
+          showToast('创建成功');
           
           // 清空输入框
           document.getElementById('original-link').value = '';
@@ -898,37 +915,37 @@ const html = `
           document.getElementById('link-custom-name').value = '';
           document.getElementById('link-expire-time').value = '';
           
-          // 3秒后自动消失
-          setTimeout(() => {
-            pasteLink.classList.remove('show');
-          }, 3000);
-          
           // 刷新列表
           loadAllPastes();
         } else {
-          showError('创建失败: ' + (data.message || '未知错误'));
+          showError('创建失败');
         }
       } catch (error) {
-        showError('创建失败: ' + error.message);
+        showError('创建失败');
       }
     };
     
-    function showError(message) {
-      pasteLink.innerHTML = '<div class="error">' + message + '</div>';
-      pasteLink.classList.add('show');
-      // 3秒后自动消失
+    function showToast(message) {
+      const toastContainer = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      toastContainer.appendChild(toast);
+      
       setTimeout(() => {
-        pasteLink.classList.remove('show');
-      }, 3000);
+        toast.style.animation = 'slideOut 0.3s ease forwards';
+        setTimeout(() => {
+          toast.remove();
+        }, 300);
+      }, 2500);
+    }
+    
+    function showError(message) {
+      showToast(message);
     }
     
     function showSuccess(message) {
-      pasteLink.innerHTML = '<div class="success">' + message + '</div>';
-      pasteLink.classList.add('show');
-      // 3秒后自动消失
-      setTimeout(() => {
-        pasteLink.classList.remove('show');
-      }, 3000);
+      showToast(message);
     }
     
     function showCopyMessage(id, message, isSuccess) {
@@ -964,21 +981,33 @@ const html = `
       }
     }
     
+    let currentEditType = null;
+    
     async function editPaste(id) {
       try {
-        const res = await authFetch('/api/paste?id=' + id);
+        // 获取内容类型
+        const typeRes = await authFetch('/api/type?id=' + id);
+        const type = typeRes.ok ? await typeRes.text() : 'text';
+        
+        // 根据类型获取内容
+        let contentRes, content;
+        if (type === 'link') {
+          contentRes = await authFetch('/api/link?id=' + id);
+        } else {
+          contentRes = await authFetch('/api/paste?id=' + id);
+        }
+        
         const nameRes = await authFetch('/api/name?id=' + id);
         const titleRes = await authFetch('/api/title?id=' + id);
         const expireRes = await authFetch('/api/expire?id=' + id);
         
-        if (res.ok) {
-          const text = await res.text();
+        if (contentRes.ok) {
+          content = await contentRes.text();
           const name = nameRes.ok ? await nameRes.text() : '';
           const title = titleRes.ok ? await titleRes.text() : '';
           const expireAt = expireRes.ok ? await expireRes.text() : '';
           
           // 隐藏其他可能显示的内容
-          pasteLink.classList.remove('show');
           pasteContent.classList.remove('show');
           
           // 移除现有的编辑框
@@ -993,8 +1022,24 @@ const html = `
             // 创建编辑框
             const editForm = document.createElement('div');
             editForm.className = 'edit-form show';
+            
+            // 根据类型设置不同的编辑框
+            let contentField = '';
+            if (type === 'link') {
+              contentField = '<div class="form-group">' +
+                '<label for="edit-text">链接地址</label>' +
+                '<input type="url" id="edit-text" placeholder="请输入完整的URL，包括http://或https://" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px; margin-bottom: 15px;">' +
+                '<div class="help-text">请输入有效的URL，包括http://或https://</div>' +
+              '</div>';
+            } else {
+              contentField = '<div class="form-group">' +
+                '<label for="edit-text">文本内容</label>' +
+                '<textarea id="edit-text" placeholder="编辑你的内容..."></textarea>' +
+              '</div>';
+            }
+            
             editForm.innerHTML = 
-              '<h4>编辑内容</h4>' +
+              '<h4>编辑' + (type === 'link' ? '链接' : '内容') + '</h4>' +
               '<div class="form-group">' +
                 '<label for="edit-title">自定义显示名称</label>' +
                 '<input type="text" id="edit-title" placeholder="例如: 我的重要笔记" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px; margin-bottom: 15px;">' +
@@ -1008,9 +1053,9 @@ const html = `
               '<div class="form-group">' +
                 '<label for="edit-expire-time">过期时间</label>' +
                 '<input type="datetime-local" id="edit-expire-time" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 14px; margin-bottom: 15px;">' +
-                '<div class="help-text">留空则永不过期，设置后文本将在指定时间后自动删除</div>' +
+                '<div class="help-text">留空则永不过期，设置后' + (type === 'link' ? '链接' : '文本') + '将在指定时间后自动删除</div>' +
               '</div>' +
-              '<textarea id="edit-text" placeholder="编辑你的内容..."></textarea>' +
+              contentField +
               '<button class="btn btn-success" onclick="saveEdit()">保存</button>' +
               '<button class="btn btn-secondary" onclick="cancelEdit()">取消</button>';
 
@@ -1019,7 +1064,7 @@ const html = `
             pasteItem.parentNode.insertBefore(editForm, pasteItem.nextSibling);
             
             // 设置编辑内容
-            document.getElementById('edit-text').value = text;
+            document.getElementById('edit-text').value = content;
             document.getElementById('edit-title').value = title;
             document.getElementById('edit-name').value = name;
             if (expireAt) {
@@ -1028,6 +1073,7 @@ const html = `
               document.getElementById('edit-expire-time').value = formattedDate;
             }
             currentEditId = id;
+            currentEditType = type;
             
             // 滚动到编辑框
             editForm.scrollIntoView({ behavior: 'smooth' });
@@ -1046,7 +1092,7 @@ const html = `
       const editNameElement = document.getElementById('edit-name');
       const editExpireTimeElement = document.getElementById('edit-expire-time');
       
-      if (!currentEditId || !editTextElement || !editTextElement.value.trim()) {
+      if (!currentEditId || !currentEditType || !editTextElement || !editTextElement.value.trim()) {
         showError('请先选择要编辑的内容并输入新内容');
         return;
       }
@@ -1070,30 +1116,55 @@ const html = `
         return;
       }
       
+      // 验证链接格式（如果是短链接）
+      if (currentEditType === 'link') {
+        try {
+          new URL(editTextElement.value.trim());
+        } catch {
+          showError('请输入有效的URL，包括http://或https://');
+          return;
+        }
+      }
+      
       try {
-        const res = await authFetch('/api/paste', {
-          method: 'PUT',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
+        let endpoint, body;
+        if (currentEditType === 'link') {
+          endpoint = '/api/link';
+          body = {
+            id: currentEditId,
+            url: editTextElement.value.trim(),
+            title: customTitle || null,
+            name: customName || null,
+            expireAt: expireTime ? new Date(expireTime).getTime() : null
+          };
+        } else {
+          endpoint = '/api/paste';
+          body = {
             id: currentEditId,
             text: editTextElement.value.trim(),
             title: customTitle || null,
             name: customName || null,
             expireAt: expireTime ? new Date(expireTime).getTime() : null
-          })
+          };
+        }
+        
+        const res = await authFetch(endpoint, {
+          method: 'PUT',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(body)
         });
         
         const data = await res.json();
         
         if (data.code === 1) {
-          showSuccess('编辑成功！');
+          showToast('编辑成功');
           cancelEdit();
           loadAllPastes();
         } else {
-          showError('编辑失败: ' + (data.message || '未知错误'));
+          showError('编辑失败');
         }
       } catch (error) {
-        showError('编辑失败: ' + error.message);
+        showError('编辑失败');
       }
     }
     
@@ -1104,9 +1175,10 @@ const html = `
       }
       pasteContent.classList.remove('show');
       currentEditId = null;
+      currentEditType = null;
     }
     
-    async function showPasteContent(id) {
+    async function showPasteContent(id, element) {
       try {
         const res = await authFetch('/api/paste?id=' + id);
         if (res.ok) {
@@ -1130,10 +1202,17 @@ const html = `
           }
           
           // 隐藏其他可能显示的内容
-          pasteLink.classList.remove('show');
           const editForm = document.querySelector('.edit-form');
           if (editForm) {
             editForm.remove();
+          }
+          
+          // 将paste-content移动到点击的链接下方
+          if (element) {
+            const pasteItem = element.closest('.paste-item');
+            if (pasteItem) {
+              pasteItem.parentNode.insertBefore(pasteContent, pasteItem.nextSibling);
+            }
           }
           
           pasteContent.classList.add('show');
@@ -1155,6 +1234,12 @@ const html = `
         editForm.remove();
       }
       document.getElementById('paste-text').innerText = '';
+      
+      // 将paste-content恢复到原来的位置（在all-pastes之前）
+      const allPastes = document.getElementById('all-pastes');
+      if (allPastes && pasteContent.parentNode !== allPastes.parentNode) {
+        allPastes.parentNode.insertBefore(pasteContent, allPastes);
+      }
     }
     
     function showQRCode(id) {
@@ -1251,22 +1336,22 @@ const html = `
         const successful = document.execCommand('copy');
         if (successful) {
           if (id) {
-            showCopyMessage(id, '链接已复制到剪贴板！', true);
+            showCopyMessage(id, '已复制', true);
           } else {
-            showSuccess('内容已复制到剪贴板！');
+            showToast('已复制');
           }
         } else {
           if (id) {
-            showCopyMessage(id, '复制失败，请手动复制', false);
+            showCopyMessage(id, '复制失败', false);
           } else {
-            showError('复制失败，请手动复制');
+            showError('复制失败');
           }
         }
       } catch (err) {
         if (id) {
-          showCopyMessage(id, '复制失败，请手动复制', false);
+          showCopyMessage(id, '复制失败', false);
         } else {
-          showError('复制失败，请手动复制');
+          showError('复制失败');
         }
       }
       
@@ -1288,13 +1373,13 @@ const html = `
         const data = await res.json();
         
         if (data.code === 1) {
-          showSuccess('删除成功！');
+          showToast('删除成功');
           loadAllPastes();
         } else {
-          showError('删除失败: ' + (data.message || '未知错误'));
+          showError('删除失败');
       }
       } catch (error) {
-        showError('删除失败: ' + error.message);
+        showError('删除失败');
       }
     }
     
@@ -1434,7 +1519,7 @@ const html = `
               var textLinks = allPastes.querySelectorAll('.text-item');
               for(var j = 0; j < textLinks.length; j++){
                 textLinks[j].addEventListener('click', function() {
-                  showPasteContent(this.getAttribute('data-id'));
+                  showPasteContent(this.getAttribute('data-id'), this);
                 });
               }
               
@@ -1488,7 +1573,6 @@ const html = `
             pasteContent.classList.add('show');
             
             // 隐藏其他可能显示的内容
-            pasteLink.classList.remove('show');
             const editForm = document.querySelector('.edit-form');
             if (editForm) {
               editForm.remove();
@@ -1730,13 +1814,17 @@ export default {
           const now = Date.now();
           if (Number(expireAt) < now) {
             // 内容已过期，删除它
-            await env.texturl.delete(id);
-            await env.texturl.delete(id + '_name');
-            await env.texturl.delete(id + '_title');
-            await env.texturl.delete(id + '_createdAt');
-            await env.texturl.delete(id + '_updatedAt');
-            await env.texturl.delete(id + '_expireAt');
-            await env.texturl.delete(id + '_type');
+            const deleteOperations = [];
+            deleteOperations.push(env.texturl.delete(id));
+            deleteOperations.push(env.texturl.delete(id + '_name'));
+            deleteOperations.push(env.texturl.delete(id + '_title'));
+            deleteOperations.push(env.texturl.delete(id + '_createdAt'));
+            deleteOperations.push(env.texturl.delete(id + '_updatedAt'));
+            deleteOperations.push(env.texturl.delete(id + '_expireAt'));
+            deleteOperations.push(env.texturl.delete(id + '_type'));
+            
+            await Promise.all(deleteOperations);
+            
             // 从列表中移除
             let list = await env.texturl.get('list');
             if (list) {
@@ -1826,22 +1914,29 @@ export default {
               } while (reserved.includes(id));
             }
             
-            await env.texturl.put(id, originalUrl);
-            // 记录创建时间（毫秒）
-            await env.texturl.put(id + '_createdAt', Date.now().toString());
-            // 标记为短链接类型
-            await env.texturl.put(id + '_type', 'link');
+            const operations = [];
             
-            // 存储自定义显示名称
+            // 并行执行所有 KV 写入操作
+            operations.push(env.texturl.put(id, originalUrl));
+            operations.push(env.texturl.put(id + '_createdAt', Date.now().toString()));
+            operations.push(env.texturl.put(id + '_type', 'link'));
+            
             if (title) {
-              await env.texturl.put(id + '_title', title);
+              operations.push(env.texturl.put(id + '_title', title));
             }
             
-            // 存储过期时间
+            if (name) {
+              operations.push(env.texturl.put(id + '_name', name));
+            }
+            
             if (expireAt) {
-              await env.texturl.put(id + '_expireAt', expireAt.toString());
+              operations.push(env.texturl.put(id + '_expireAt', expireAt.toString()));
             }
             
+            // 并行执行所有 KV 写入
+            await Promise.all(operations);
+            
+            // 获取并更新列表
             let list = await env.texturl.get('list');
             list = list ? JSON.parse(list) : [];
             list.unshift(id);
@@ -1878,6 +1973,8 @@ export default {
             
             // 如果要修改名称（链接后缀）
             let newId = id;
+            let needUpdateContent = true;
+            
             if (name !== undefined && name !== (await env.texturl.get(id + '_name') || '')) {
               // 验证新名称格式
               if (name) {
@@ -1913,23 +2010,32 @@ export default {
                 // 迁移数据到新ID
                 newId = name;
                 
-                // 复制原数据到新ID
-                await env.texturl.put(newId, originalUrl);
+                // 复制原数据到新ID，并更新内容
+                const copyOperations = [];
+                copyOperations.push(env.texturl.put(newId, originalUrl));
                 
                 // 复制时间戳
                 const createdAt = await env.texturl.get(id + '_createdAt');
-                if (createdAt) await env.texturl.put(newId + '_createdAt', createdAt);
+                if (createdAt) copyOperations.push(env.texturl.put(newId + '_createdAt', createdAt));
                 
                 // 复制类型标记
-                await env.texturl.put(newId + '_type', 'link');
+                copyOperations.push(env.texturl.put(newId + '_type', 'link'));
                 
-                // 删除原ID数据
-                await env.texturl.delete(id);
-                await env.texturl.delete(id + '_name');
-                await env.texturl.delete(id + '_createdAt');
-                await env.texturl.delete(id + '_updatedAt');
-                await env.texturl.delete(id + '_expireAt');
-                await env.texturl.delete(id + '_type');
+                // 并行执行复制操作
+                await Promise.all(copyOperations);
+                
+                // 删除原ID数据（包括所有相关字段）
+                const deleteOperations = [];
+                deleteOperations.push(env.texturl.delete(id));
+                deleteOperations.push(env.texturl.delete(id + '_name'));
+                deleteOperations.push(env.texturl.delete(id + '_title'));
+                deleteOperations.push(env.texturl.delete(id + '_createdAt'));
+                deleteOperations.push(env.texturl.delete(id + '_updatedAt'));
+                deleteOperations.push(env.texturl.delete(id + '_expireAt'));
+                deleteOperations.push(env.texturl.delete(id + '_type'));
+                
+                // 并行执行删除操作
+                await Promise.all(deleteOperations);
                 
                 // 更新列表中的ID
                 let list = await env.texturl.get('list');
@@ -1938,40 +2044,53 @@ export default {
                   list = list.map(item => item === id ? newId : item);
                   await env.texturl.put('list', JSON.stringify(list));
                 }
+                
+                needUpdateContent = false;
               } else if (!name) {
-                // 如果清空名称，不改变ID
+                // 如果清空名称，不改变ID，但仍需更新内容
                 await env.texturl.delete(id + '_name');
               }
-            } else {
-              // 不修改名称，只更新内容
-              await env.texturl.put(id, originalUrl);
+            }
+            
+            const updateOperations = [];
+            
+            // 更新内容（如果还没有更新过）
+            if (needUpdateContent) {
+              updateOperations.push(env.texturl.put(newId, originalUrl));
             }
             
             // 记录修改时间（毫秒）
-            await env.texturl.put(newId + '_updatedAt', Date.now().toString());
+            updateOperations.push(env.texturl.put(newId + '_updatedAt', Date.now().toString()));
             
             // 处理自定义显示名称
             if (title !== undefined) {
               if (title) {
-                await env.texturl.put(newId + '_title', title);
+                updateOperations.push(env.texturl.put(newId + '_title', title));
               } else {
-                await env.texturl.delete(newId + '_title');
+                updateOperations.push(env.texturl.delete(newId + '_title'));
               }
             }
             
             // 处理过期时间
             if (expireAt !== undefined) {
               if (expireAt) {
-                await env.texturl.put(newId + '_expireAt', expireAt.toString());
+                updateOperations.push(env.texturl.put(newId + '_expireAt', expireAt.toString()));
               } else {
-                await env.texturl.delete(newId + '_expireAt');
+                updateOperations.push(env.texturl.delete(newId + '_expireAt'));
               }
             }
             
-            // 如果提供了名称且与ID不同，则保存名称（用于显示）
-            if (name && name !== newId) {
-              await env.texturl.put(newId + '_name', name);
+            // 处理自定义链接后缀
+            if (name !== undefined) {
+              if (name) {
+                updateOperations.push(env.texturl.put(newId + '_name', name));
+              } else {
+                updateOperations.push(env.texturl.delete(newId + '_name'));
+              }
             }
+            
+            // 并行执行所有更新操作
+            await Promise.all(updateOperations);
             
             return respond.json({ code: 1, message: '更新成功', id: newId });
           } catch (error) {
@@ -1983,13 +2102,18 @@ export default {
             if (!id) return respond.json({ code: 0, message: 'ID不能为空' }, { status: 400 });
             const existing = await env.texturl.get(id);
             if (!existing) return respond.json({ code: 0, message: '链接不存在' }, { status: 404 });
-            await env.texturl.delete(id);
-            await env.texturl.delete(id + '_name');
-            await env.texturl.delete(id + '_title');
-            await env.texturl.delete(id + '_createdAt');
-            await env.texturl.delete(id + '_updatedAt');
-            await env.texturl.delete(id + '_expireAt');
-            await env.texturl.delete(id + '_type');
+            
+            const deleteOperations = [];
+            deleteOperations.push(env.texturl.delete(id));
+            deleteOperations.push(env.texturl.delete(id + '_name'));
+            deleteOperations.push(env.texturl.delete(id + '_title'));
+            deleteOperations.push(env.texturl.delete(id + '_createdAt'));
+            deleteOperations.push(env.texturl.delete(id + '_updatedAt'));
+            deleteOperations.push(env.texturl.delete(id + '_expireAt'));
+            deleteOperations.push(env.texturl.delete(id + '_type'));
+            
+            await Promise.all(deleteOperations);
+            
             let list = await env.texturl.get('list');
             if (list) {
               list = JSON.parse(list);
@@ -2087,22 +2211,29 @@ export default {
               } while (reserved.includes(id));
             }
             
-            await env.texturl.put(id, text);
-        // 记录创建时间（毫秒）
-        await env.texturl.put(id + '_createdAt', Date.now().toString());
-        // 标记为文本类型
-        await env.texturl.put(id + '_type', 'text');
-        
-        // 存储自定义显示名称
-        if (title) {
-          await env.texturl.put(id + '_title', title);
-        }
+            const operations = [];
             
-            // 存储过期时间
-            if (expireAt) {
-              await env.texturl.put(id + '_expireAt', expireAt.toString());
+            // 并行执行所有 KV 写入操作
+            operations.push(env.texturl.put(id, text));
+            operations.push(env.texturl.put(id + '_createdAt', Date.now().toString()));
+            operations.push(env.texturl.put(id + '_type', 'text'));
+            
+            if (title) {
+              operations.push(env.texturl.put(id + '_title', title));
             }
             
+            if (name) {
+              operations.push(env.texturl.put(id + '_name', name));
+            }
+            
+            if (expireAt) {
+              operations.push(env.texturl.put(id + '_expireAt', expireAt.toString()));
+            }
+            
+            // 并行执行所有 KV 写入
+            await Promise.all(operations);
+            
+            // 获取并更新列表
             let list = await env.texturl.get('list');
             list = list ? JSON.parse(list) : [];
             list.unshift(id);
@@ -2132,6 +2263,8 @@ export default {
             
             // 如果要修改名称（链接后缀）
             let newId = id;
+            let needUpdateContent = true;
+            
             if (name !== undefined && name !== (await env.texturl.get(id + '_name') || '')) {
               // 验证新名称格式
               if (name) {
@@ -2167,22 +2300,32 @@ export default {
                 // 迁移数据到新ID
                 newId = name;
                 
-                // 复制原数据到新ID
-          await env.texturl.put(newId, text);
-          
-          // 复制时间戳
-          const createdAt = await env.texturl.get(id + '_createdAt');
-          if (createdAt) await env.texturl.put(newId + '_createdAt', createdAt);
-          
-          // 复制类型标记
-          await env.texturl.put(newId + '_type', 'text');
-          
-          // 删除原ID数据
-          await env.texturl.delete(id);
-          await env.texturl.delete(id + '_name');
-          await env.texturl.delete(id + '_createdAt');
-          await env.texturl.delete(id + '_updatedAt');
-          await env.texturl.delete(id + '_type');
+                // 复制原数据到新ID，并更新内容
+                const copyOperations = [];
+                copyOperations.push(env.texturl.put(newId, text));
+                
+                // 复制时间戳
+                const createdAt = await env.texturl.get(id + '_createdAt');
+                if (createdAt) copyOperations.push(env.texturl.put(newId + '_createdAt', createdAt));
+                
+                // 复制类型标记
+                copyOperations.push(env.texturl.put(newId + '_type', 'text'));
+                
+                // 并行执行复制操作
+                await Promise.all(copyOperations);
+                
+                // 删除原ID数据（包括所有相关字段）
+                const deleteOperations = [];
+                deleteOperations.push(env.texturl.delete(id));
+                deleteOperations.push(env.texturl.delete(id + '_name'));
+                deleteOperations.push(env.texturl.delete(id + '_title'));
+                deleteOperations.push(env.texturl.delete(id + '_createdAt'));
+                deleteOperations.push(env.texturl.delete(id + '_updatedAt'));
+                deleteOperations.push(env.texturl.delete(id + '_expireAt'));
+                deleteOperations.push(env.texturl.delete(id + '_type'));
+                
+                // 并行执行删除操作
+                await Promise.all(deleteOperations);
                 
                 // 更新列表中的ID
                 let list = await env.texturl.get('list');
@@ -2191,40 +2334,53 @@ export default {
                   list = list.map(item => item === id ? newId : item);
                   await env.texturl.put('list', JSON.stringify(list));
                 }
+                
+                needUpdateContent = false;
               } else if (!name) {
-                // 如果清空名称，不改变ID
+                // 如果清空名称，不改变ID，但仍需更新内容
                 await env.texturl.delete(id + '_name');
               }
-            } else {
-              // 不修改名称，只更新内容
-              await env.texturl.put(id, text);
+            }
+            
+            const updateOperations = [];
+            
+            // 更新内容（如果还没有更新过）
+            if (needUpdateContent) {
+              updateOperations.push(env.texturl.put(newId, text));
             }
             
             // 记录修改时间（毫秒）
-            await env.texturl.put(newId + '_updatedAt', Date.now().toString());
+            updateOperations.push(env.texturl.put(newId + '_updatedAt', Date.now().toString()));
             
             // 处理自定义显示名称
             if (title !== undefined) {
               if (title) {
-                await env.texturl.put(newId + '_title', title);
+                updateOperations.push(env.texturl.put(newId + '_title', title));
               } else {
-                await env.texturl.delete(newId + '_title');
+                updateOperations.push(env.texturl.delete(newId + '_title'));
               }
             }
             
             // 处理过期时间
             if (expireAt !== undefined) {
               if (expireAt) {
-                await env.texturl.put(newId + '_expireAt', expireAt.toString());
+                updateOperations.push(env.texturl.put(newId + '_expireAt', expireAt.toString()));
               } else {
-                await env.texturl.delete(newId + '_expireAt');
+                updateOperations.push(env.texturl.delete(newId + '_expireAt'));
               }
             }
             
-            // 如果提供了名称且与ID不同，则保存名称（用于显示）
-            if (name && name !== newId) {
-              await env.texturl.put(newId + '_name', name);
+            // 处理自定义链接后缀
+            if (name !== undefined) {
+              if (name) {
+                updateOperations.push(env.texturl.put(newId + '_name', name));
+              } else {
+                updateOperations.push(env.texturl.delete(newId + '_name'));
+              }
             }
+            
+            // 并行执行所有更新操作
+            await Promise.all(updateOperations);
             
             return respond.json({ code: 1, message: '更新成功', id: newId });
           } catch (error) {
@@ -2236,13 +2392,18 @@ export default {
             if (!id) return respond.json({ code: 0, message: 'ID不能为空' }, { status: 400 });
             const existing = await env.texturl.get(id);
             if (!existing) return respond.json({ code: 0, message: '文本不存在' }, { status: 404 });
-            await env.texturl.delete(id);
-        await env.texturl.delete(id + '_name');
-        await env.texturl.delete(id + '_title');
-        await env.texturl.delete(id + '_createdAt');
-        await env.texturl.delete(id + '_updatedAt');
-        await env.texturl.delete(id + '_expireAt');
-        await env.texturl.delete(id + '_type');
+            
+            const deleteOperations = [];
+            deleteOperations.push(env.texturl.delete(id));
+            deleteOperations.push(env.texturl.delete(id + '_name'));
+            deleteOperations.push(env.texturl.delete(id + '_title'));
+            deleteOperations.push(env.texturl.delete(id + '_createdAt'));
+            deleteOperations.push(env.texturl.delete(id + '_updatedAt'));
+            deleteOperations.push(env.texturl.delete(id + '_expireAt'));
+            deleteOperations.push(env.texturl.delete(id + '_type'));
+            
+            await Promise.all(deleteOperations);
+            
             let list = await env.texturl.get('list');
             if (list) {
               list = JSON.parse(list);
