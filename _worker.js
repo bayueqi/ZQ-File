@@ -1452,7 +1452,8 @@ const html = `
                   var link = location.origin + '/' + id;
                   var timeText = ts ? new Date(ts).toLocaleString() : '';
                   var expireText = expireAt ? new Date(Number(expireAt)).toLocaleString() : '永不过期';
-                  var expireColor = expireAt ? '#ff6b6b' : '#51cf66';
+                  var isExpired = expireAt ? Number(expireAt) < Date.now() : false;
+                  var expireColor = isExpired ? '#ff6b6b' : (expireAt ? '#f59f00' : '#51cf66');
                   var displayName = title ? (i + 1) + '. ' + title + ' (' + link + ')' : 
                                    name ? (i + 1) + '. ' + name + ' (' + link + ')' : 
                                    (i + 1) + '. ' + link;
@@ -1461,7 +1462,7 @@ const html = `
                     '<div class="paste-item">' +
                     '<a href="javascript:void(0)" data-id="' + id + '" class="paste-link-item text-item" style="cursor: pointer;">' + displayName + '</a>' +
                     (timeText ? '<div style="color:#666;font-size:12px;margin-left:10px;white-space:nowrap;">' + timeText + '</div>' : '') +
-                    '<div style="color:' + expireColor + ';font-size:12px;margin-left:10px;white-space:nowrap;">' + (expireAt ? '过期: ' + expireText : expireText) + '</div>' +
+                    '<div style="color:' + expireColor + ';font-size:12px;margin-left:10px;white-space:nowrap;">' + (isExpired ? '已过期' : (expireAt ? '过期: ' + expireText : expireText)) + '</div>' +
                     '<div class="paste-actions">' +
                   '<button class="action-btn copy-btn" data-id="' + id + '" title="复制链接">复制</button>' +
                   '<button class="action-btn qr-btn" data-id="' + id + '" title="显示二维码">二维码</button>' +
@@ -1492,7 +1493,8 @@ const html = `
                   var link = location.origin + '/' + id;
                   var timeText = ts ? new Date(ts).toLocaleString() : '';
                   var expireText = expireAt ? new Date(Number(expireAt)).toLocaleString() : '永不过期';
-                  var expireColor = expireAt ? '#ff6b6b' : '#51cf66';
+                  var isExpired = expireAt ? Number(expireAt) < Date.now() : false;
+                  var expireColor = isExpired ? '#ff6b6b' : (expireAt ? '#f59f00' : '#51cf66');
                   var displayName = title ? (i + 1) + '. ' + title + ' (' + link + ')' : 
                                    name ? (i + 1) + '. ' + name + ' (' + link + ')' : 
                                    (i + 1) + '. ' + link;
@@ -1501,7 +1503,7 @@ const html = `
                     '<div class="paste-item">' +
                     '<a href="' + link + '" target="_blank" data-id="' + id + '" class="paste-link-item link-item" style="cursor: pointer;">' + displayName + '</a>' +
                     (timeText ? '<div style="color:#666;font-size:12px;margin-left:10px;white-space:nowrap;">' + timeText + '</div>' : '') +
-                    '<div style="color:' + expireColor + ';font-size:12px;margin-left:10px;white-space:nowrap;">' + (expireAt ? '过期: ' + expireText : expireText) + '</div>' +
+                    '<div style="color:' + expireColor + ';font-size:12px;margin-left:10px;white-space:nowrap;">' + (isExpired ? '已过期' : (expireAt ? '过期: ' + expireText : expireText)) + '</div>' +
                     '<div class="paste-actions">' +
                   '<button class="action-btn copy-btn" data-id="' + id + '" title="复制链接">复制</button>' +
                   '<button class="action-btn qr-btn" data-id="' + id + '" title="显示二维码">二维码</button>' +
